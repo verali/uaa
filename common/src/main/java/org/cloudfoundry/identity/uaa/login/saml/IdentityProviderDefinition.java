@@ -204,6 +204,16 @@ public class IdentityProviderDefinition {
         this.addShadowUserOnLogin = addShadowUserOnLogin;
     }
 
+    // For backward compatibility.
+    public boolean isAddNew() {
+        return addShadowUserOnLogin;
+    }
+
+    // For backward compatibility.
+    public void setAddNew(boolean addNew) {
+        this.addShadowUserOnLogin = addNew;
+    }
+
     public IdentityProviderDefinition clone() {
         return new IdentityProviderDefinition(metaDataLocation, idpEntityAlias, nameID, assertionConsumerIndex, metadataTrustCheck, showSamlLink, linkText, iconUrl, zoneId, addShadowUserOnLogin);
     }
