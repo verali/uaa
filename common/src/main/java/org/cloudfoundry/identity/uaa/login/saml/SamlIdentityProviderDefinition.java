@@ -271,6 +271,16 @@ public class SamlIdentityProviderDefinition extends ExternalIdentityProviderDefi
         this.addShadowUserOnLogin = addShadowUserOnLogin;
     }
 
+    // For backward compatibility.
+    public boolean isAddNew() {
+        return addShadowUserOnLogin;
+    }
+
+    // For backward compatibility.
+    public void setAddNew(boolean addNew) {
+        this.addShadowUserOnLogin = addNew;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
