@@ -24,6 +24,18 @@ eclipse {
 	}
 }
 
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven {
+   credentials {
+     username 'svc-dsp-reader'
+     password 'xeY3MegUdr'
+    }
+    url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
+  }
+}
+
 description = 'UAA'
 dependencies {
   compile(identityCommon) {
@@ -43,6 +55,12 @@ dependencies {
   runtime group: 'org.apache.tomcat', name: 'tomcat-jdbc', version:parent.tomcatVersion
   runtime group: 'javax.servlet', name: 'jstl', version:'1.2'
   runtime group: 'postgresql', name: 'postgresql', version:parent.postgresqlVersion
+  // For Spring Metering Filter support
+  runtime group: 'com.ge.predix', name: 'spring-metering-filter', version:'1.0.0-SNAPSHOT'
+  runtime group: 'org.apache.httpcomponents', name: 'httpasyncclient', version:'4.1'
+  runtime group: 'org.springframework.data', name: 'spring-data-commons', version:'1.9.1.RELEASE'
+  runtime group: 'com.nurego', name: 'nurego-java', version:'1.0.10'
+  runtime group: 'com.github.fge', name: 'json-schema-validator', version:'2.2.6'
 
   testCompile identityCommon.configurations.testCompile.dependencies
   testCompile identityCommon.sourceSets.test.output
@@ -66,8 +84,8 @@ dependencies {
   testCompile group: 'dumbster', name: 'dumbster', version:'1.6'
   testCompile group: 'org.reflections', name: 'reflections', version: '0.9.10'
   testCompile group: 'org.skyscreamer', name:'jsonassert', version: '0.9.0'
-
-
+  // For Spring Metering Filter support
+  testCompile group: 'com.nurego', name: 'nurego-java', version:'1.0.10'
 }
 
 test {
@@ -79,7 +97,8 @@ test {
 
 task integrationTest(type: Test) {
   dependsOn parent.cargoStartLocal, parent.resetCoverage
-
+  systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
+  systemProperty "https.proxyPort", "8080"
   finalizedBy parent.flushCoverageData
 
   filter {
