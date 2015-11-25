@@ -220,6 +220,16 @@ public class SamlIdentityProviderDefinition extends ExternalIdentityProviderDefi
         return new SamlIdentityProviderDefinition(metaDataLocation, idpEntityAlias, nameID, assertionConsumerIndex, metadataTrustCheck, showSamlLink, linkText, iconUrl, zoneId, addShadowUserOnLogin, getEmailDomain()!=null ? new ArrayList<>(getEmailDomain()) : null, getExternalGroupsWhitelist()!=null ? new ArrayList<>(getExternalGroupsWhitelist()) : null, getAttributeMappings()!=null ? new HashMap(getAttributeMappings()) : null);
     }
 
+    // For backward compatibility.
+    public boolean isAddNew() {
+        return addShadowUserOnLogin;
+    }
+
+    // For backward compatibility.
+    public void setAddNew(boolean addNew) {
+        this.addShadowUserOnLogin = addNew;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
