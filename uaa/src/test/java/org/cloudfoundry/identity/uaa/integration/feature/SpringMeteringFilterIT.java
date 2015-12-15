@@ -70,8 +70,6 @@ public class SpringMeteringFilterIT {
     @Value("${NUREGO_API_KEY:l4d7f4be-6812-44bd-b95e-9d415210fe14}")
     String nuregoApiKey;
 
-    private Subscription subscription;
-
     ServerRunning serverRunning = ServerRunning.isRunning();
 
     private final String zoneId = "test-zone-uaa";
@@ -82,8 +80,8 @@ public class SpringMeteringFilterIT {
 
     private String adminUserEmail;
     private final String zoneUrl = "http://" + this.zoneId + ".localhost:8080/uaa";
-
-    @Before
+// Uncomment the following code to create a new subscription, for now we are using a pre-existing subscription.
+/*    @Before
     public void createSubscription() throws Exception {
         Nurego.apiKey = this.nuregoApiKey;
         Nurego.setApiBase(this.nuregoApiUrl);
@@ -101,10 +99,12 @@ public class SpringMeteringFilterIT {
             e.printStackTrace();
             Assert.fail("Failed to create Nurego subscription.");
         }
-    }
+    } */
 
     @Before
     public void setupZone() throws Exception {
+        Nurego.apiKey = this.nuregoApiKey;
+        Nurego.setApiBase(this.nuregoApiUrl);
         // admin client rest template - to create users on base uaa
         this.adminClient = IntegrationTestUtils.getClientCredentialsTemplate(
                 IntegrationTestUtils.getClientCredentialsResource(this.baseUrl, new String[0], "admin", "adminsecret"));
@@ -145,7 +145,7 @@ public class SpringMeteringFilterIT {
         System.out.println("****** END SETUP ZONE ******");
     }
 
-    @After
+    /* @After
     public void cancelSubscription() throws Exception {
         try {
             Subscription.cancel(this.orgId, this.subscription.getId());
@@ -153,24 +153,12 @@ public class SpringMeteringFilterIT {
             e.printStackTrace();
             Assert.fail("Failed to cancel Nurego subscription.");
         }
-    }
-
-    // @Before
-    // @After
-    public void logout_and_clear_cookies() {
-        try {
-            this.webDriver.get(this.baseUrl + "/logout.do");
-        } catch (org.openqa.selenium.TimeoutException x) {
-            // try again - this should not be happening - 20 second timeouts
-            this.webDriver.get(this.baseUrl + "/logout.do");
-        }
-        this.webDriver.manage().deleteAllCookies();
-    }
+    } */
 
     @Test
     public void testFilter() throws Exception {
         Double beforeUsedAmountUsers = getEntitlementUsageByFeatureId(USERS_FEATURE_ID, this.zoneId);
-        Double beforeUsedAmountTokens = getEntitlementUsageByFeatureId(TOKEN_FEATURE_ID, this.subscription.getId());
+        Double beforeUsedAmountTokens = getEntitlementUsageByFeatureId(TOKEN_FEATURE_ID, this.zoneId);
 
         String zoneUserEmail = "zoneUser@filter.org";
         // call user api
@@ -181,7 +169,7 @@ public class SpringMeteringFilterIT {
         Thread.sleep(1000);
         zoneUserEmail = "zoneUser2@filter.org";
         IntegrationTestUtils.createUser(this.zoneAdminClient, this.zoneUrl, zoneUserEmail,
-                "firstname2", "lastname2", zoneUserEmail, true);*/
+                "firstname2", "lastname2", zoneUserEmail, true); */
 
         // check Nurego amounts
         Double afterUsedAmountUsers = getEntitlementUsageByFeatureId(USERS_FEATURE_ID, this.zoneId);
