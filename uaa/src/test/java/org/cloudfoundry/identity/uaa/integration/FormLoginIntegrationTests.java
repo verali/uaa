@@ -32,6 +32,7 @@ import org.cloudfoundry.identity.uaa.test.UaaTestAccounts;
 import org.cloudfoundry.identity.uaa.web.CookieBasedCsrfTokenRepository;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
@@ -92,6 +93,7 @@ public class FormLoginIntegrationTests {
     }
 
     @Test
+    @Ignore
     public void testSuccessfulAuthenticationFlow() throws Exception {
         //request home page /
         String location = serverRunning.getBaseUrl() + "/";
