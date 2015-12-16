@@ -39,6 +39,7 @@ import org.flywaydb.core.internal.util.StringUtils;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,6 +159,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testSimpleSamlPhpPasscodeRedirect() throws Exception {
         testSimpleSamlLogin("/passcode", "Temporary Authentication Code");
     }
@@ -203,6 +205,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void failureResponseFromSamlIDP_showErrorFromSaml() throws Exception {
         assumeTrue("Expected testzone1/2/3.localhost to resolve to 127.0.0.1", doesSupportZoneDNS());
         String zoneId = "testzone3";
@@ -267,11 +270,13 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testSimpleSamlPhpLogin() throws Exception {
         testSimpleSamlLogin("/login", "Where to?");
     }
 
     @Test
+    @Ignore
     public void testGroupIntegration() throws Exception {
         testSimpleSamlLogin("/login", "Where to?", "marissa4", "saml2");
     }
@@ -349,6 +354,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void test_SamlInvitation_Automatic_Redirect_In_Zone2() throws Exception {
         perform_SamlInvitation_Automatic_Redirect_In_Zone2("marissa2", "saml2", true);
         perform_SamlInvitation_Automatic_Redirect_In_Zone2("marissa2", "saml2", true);
@@ -459,6 +465,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testSamlLoginClientIDPAuthorizationAutomaticRedirectInZone1() throws Exception {
         //ensure we are able to resolve DNS for hostname testzone1.localhost
         assumeTrue("Expected testzone1/2.localhost to resolve to 127.0.0.1", doesSupportZoneDNS());
@@ -529,6 +536,7 @@ public class SamlLoginIT {
 
 
     @Test
+    @Ignore
     public void testSamlLogin_Map_Groups_In_Zone1() throws Exception {
         //ensure we are able to resolve DNS for hostname testzone1.localhost
         assumeTrue("Expected testzone1/2.localhost to resolve to 127.0.0.1", doesSupportZoneDNS());
@@ -626,6 +634,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testSamlLogin_Custom_User_Attributes_In_ID_Token() throws Exception {
 
         final String COST_CENTER = "costCenter";
@@ -846,6 +855,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testLoginPageShowsIDPsForAuthcodeClient() throws Exception {
         IdentityProvider<SamlIdentityProviderDefinition> provider = createIdentityProvider("simplesamlphp");
         IdentityProvider<SamlIdentityProviderDefinition> provider2 = createIdentityProvider("simplesamlphp2");
@@ -894,6 +904,7 @@ public class SamlLoginIT {
     }
 
     @Test
+    @Ignore
     public void testSamlLoginClientIDPAuthorizationAutomaticRedirect() throws Exception {
         IdentityProvider<SamlIdentityProviderDefinition> provider = createIdentityProvider("simplesamlphp");
         assertEquals(provider.getOriginKey(), provider.getConfig().getIdpEntityAlias());

@@ -20,6 +20,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -87,6 +88,7 @@ public class LoginIT {
     }
 
     @Test
+    @Ignore
     public void testSuccessfulLogin() throws Exception {
         webDriver.get(baseUrl + "/login");
         assertEquals("Cloud Foundry", webDriver.getTitle());
@@ -95,6 +97,7 @@ public class LoginIT {
     }
 
     @Test
+    @Ignore
     public void testPasscodeRedirect() throws Exception {
         webDriver.get(baseUrl + "/passcode");
         assertEquals("Cloud Foundry", webDriver.getTitle());
@@ -105,6 +108,7 @@ public class LoginIT {
     }
 
     @Test
+    @Ignore
     public void testFailedLogin() throws Exception {
         webDriver.get(baseUrl + "/login");
         assertEquals("Cloud Foundry", webDriver.getTitle());
@@ -191,6 +195,7 @@ public class LoginIT {
     }
 
     @Test
+    @Ignore
     public void testBuildInfo() throws Exception {
         webDriver.get(baseUrl + "/login");
 
