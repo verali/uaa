@@ -15,6 +15,7 @@ package org.cloudfoundry.identity.uaa.integration.feature;
 import com.dumbster.smtp.SimpleSmtpServer;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,6 +90,7 @@ public class ChangePasswordIT {
     }
 
     @Test
+    @Ignore
     public void testChangePassword() throws Exception {
         signIn(userEmail, PASSWORD);
 
@@ -104,6 +106,7 @@ public class ChangePasswordIT {
     }
 
     @Test
+    @Ignore
     public void displaysErrorWhenPasswordContravenesPolicy() {
         //the only policy we can contravene by default is the length
 

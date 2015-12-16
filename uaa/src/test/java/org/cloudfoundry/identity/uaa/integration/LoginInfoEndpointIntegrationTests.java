@@ -13,6 +13,7 @@
 package org.cloudfoundry.identity.uaa.integration;
 
 import org.cloudfoundry.identity.uaa.ServerRunning;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +55,7 @@ public class LoginInfoEndpointIntegrationTests {
      * tests a happy-day flow of the <code>/login</code> endpoint
      */
     @Test
+    @Ignore
     public void testHappyDayHtml() throws Exception {
 
         HttpHeaders headers = new HttpHeaders();
