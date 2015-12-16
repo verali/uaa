@@ -25,6 +25,18 @@ eclipse {
 	}
 }
 
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven {
+   credentials {
+     username 'svc-dsp-reader'
+     password 'xeY3MegUdr'
+    }
+    url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
+  }
+}
+
 description = 'UAA'
 dependencies {
   compile(identityCommon) {
@@ -44,6 +56,7 @@ dependencies {
   runtime group: 'org.apache.tomcat', name: 'tomcat-jdbc', version:parent.tomcatVersion
   runtime group: 'javax.servlet', name: 'jstl', version:'1.2'
   runtime group: 'postgresql', name: 'postgresql', version:parent.postgresqlVersion
+  runtime group: 'com.ge.predix', name: 'spring-log-filter', version:'1.0.0-SNAPSHOT'
 
   testCompile identityCommon.configurations.testCompile.dependencies
   testCompile identityCommon.sourceSets.test.output
