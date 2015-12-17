@@ -57,7 +57,7 @@ dependencies {
   runtime group: 'javax.servlet', name: 'jstl', version:'1.2'
   runtime group: 'postgresql', name: 'postgresql', version:parent.postgresqlVersion
   // For Spring Log Filter support
-  runtime group: 'com.ge.predix', name: 'spring-log-filter', version:'1.0.0-SNAPSHOT'
+  runtime group: 'com.ge.predix', name: 'spring-log-filter', version:'1.0.0'
   // For Spring Metering Filter support
   runtime group: 'com.ge.predix', name: 'spring-metering-filter', version:'1.1.0'
   runtime group: 'org.apache.httpcomponents', name: 'httpasyncclient', version:'4.1'
