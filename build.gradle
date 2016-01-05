@@ -266,7 +266,7 @@ cargo {
     systemProperties {
       property 'net.sourceforge.cobertura.datafile', integrationCoverageFile
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
-      property 'https.proxyHost', 'sjc1intproxy01.crd.ge.com'
+      property 'https.proxyHost', 'grc-americas-pitc-sanraz.proxy.corporate.gtm.ge.com'
       property 'https.proxyPort', '8080'
       property 'NUREGO_BATCH_INTERVAL_SECONDS', '1'
       property 'NUREGO_BATCH_MAX_MAP_SIZE', '1'
