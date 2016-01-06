@@ -270,6 +270,11 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
     }
 
     @Override
+    public void setHostedIdpName(String hostedIdpName) {
+        getManager().setHostedIdpName(hostedIdpName);
+    }
+
+    @Override
     public String getHostedSPName() {
         return getManager().getHostedSPName();
     }
@@ -529,10 +534,6 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
             return hostedIdpName;
         }
 
-        public void setHostedIdpName(String hostedIdpName) {
-            this.hostedIdpName = hostedIdpName;
-        }
-
         @Override
         public String getHostedSPName() {
             return super.getHostedSPName();
@@ -621,6 +622,10 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
         @Override
         public void setDefaultIDP(String defaultIDP) {
             super.setDefaultIDP(defaultIDP);
+        }
+
+        public void setHostedIdpName(String hostedIdpName) {
+            this.hostedIdpName = hostedIdpName;
         }
 
         @Override

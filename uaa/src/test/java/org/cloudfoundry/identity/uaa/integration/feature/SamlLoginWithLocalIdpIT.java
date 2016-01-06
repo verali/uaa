@@ -121,7 +121,7 @@ public class SamlLoginWithLocalIdpIT {
         return String.format(MockMvcUtils.IDP_META_DATA, new RandomValueStringGenerator().generate());
     }
 
-    @Before
+    //@Before
     public void clearWebDriverOfCookies() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
         webDriver.manage().deleteAllCookies();
@@ -133,15 +133,15 @@ public class SamlLoginWithLocalIdpIT {
         webDriver.get("http://simplesamlphp2.cfapps.io/module.php/core/authenticate.php?as=example-userpass&logout");
     }
 
-    @Test
+    //@Test
     public void testDownloadSamlIdpMetadata() {
         SamlIdentityProviderDefinition idpDefinition = createLocalSamlIDP("unit-test-idp", "uaa");
     }
 
-    @Test
+    //@Test
     public void testCreateSamlIdp() throws Exception {
         SamlIdentityProviderDefinition idpDef = createLocalSamlIDP("unit-test-idp", "uaa");
-        IntegrationTestUtils.createIdentityProvider("unit-test-idp", true, this.baseUrl, this.serverRunning, idpDef);
+        IntegrationTestUtils.createIdentityProvider("Local SAML IdP", "unit-test-idp", true, this.baseUrl, this.serverRunning, idpDef);
     }
 
     public static SamlIdentityProviderDefinition createLocalSamlIDP(String alias, String zoneId) {
@@ -203,7 +203,7 @@ public class SamlLoginWithLocalIdpIT {
 
     //@Test
     public void testSimpleSamlPhpPasscodeRedirect() throws Exception {
-        testSimpleSamlLogin("/passcode", "Temporary Authentication Code");
+        testLocalSamlIdpLogin("/passcode", "Temporary Authentication Code");
     }
 
     //@Test
@@ -310,29 +310,33 @@ public class SamlLoginWithLocalIdpIT {
         return url;
     }
 
-    //@Test
-    public void testSimpleSamlPhpLogin() throws Exception {
-        testSimpleSamlLogin("/login", "Where to?");
+    @Test
+    public void testLocalSamlIdpLogin() throws Exception {
+        testLocalSamlIdpLogin("/login", "Where to?", "marissa", "koala");
     }
 
     //@Test
     public void testGroupIntegration() throws Exception {
-        testSimpleSamlLogin("/login", "Where to?", "marissa4", "saml2");
+        testLocalSamlIdpLogin("/login", "Where to?", "marissa4", "saml2");
     }
 
-    private void testSimpleSamlLogin(String firstUrl, String lookfor) throws Exception {
-        testSimpleSamlLogin(firstUrl, lookfor, testAccounts.getUserName(), testAccounts.getPassword());
+    private void testLocalSamlIdpLogin(String firstUrl, String lookfor) throws Exception {
+        testLocalSamlIdpLogin(firstUrl, lookfor, testAccounts.getUserName(), testAccounts.getPassword());
     }
-    private void testSimpleSamlLogin(String firstUrl, String lookfor, String username, String password) throws Exception {
-        IdentityProvider<SamlIdentityProviderDefinition> provider = createIdentityProvider("simplesamlphp");
+
+    private void testLocalSamlIdpLogin(String firstUrl, String lookfor, String username, String password) throws Exception {
+        SamlIdentityProviderDefinition idpDef = createLocalSamlIDP("unit-test-idp", "uaa");
+        IdentityProvider<SamlIdentityProviderDefinition> provider =
+                IntegrationTestUtils.createIdentityProvider("Local SAML IdP", "unit-test-idp", true, this.baseUrl, this.serverRunning, idpDef);
 
         //tells us that we are on travis
         assumeTrue("Expected testzone1/2.localhost to resolve to 127.0.0.1", doesSupportZoneDNS());
 
         webDriver.get(baseUrl + firstUrl);
         Assert.assertEquals("Cloud Foundry", webDriver.getTitle());
+        IntegrationTestUtils.takeScreenShot(webDriver);
         webDriver.findElement(By.xpath("//a[text()='" + provider.getConfig().getLinkText() + "']")).click();
-        //takeScreenShot();
+        IntegrationTestUtils.takeScreenShot(webDriver);
         webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
         webDriver.findElement(By.name("username")).clear();
         webDriver.findElement(By.name("username")).sendKeys(username);

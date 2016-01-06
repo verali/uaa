@@ -586,7 +586,7 @@ public class IntegrationTestUtils {
 
         SamlIdentityProviderDefinition samlIdentityProviderDefinition = createSimplePHPSamlIDP(originKey, Origin.UAA);
 
-        return createIdentityProvider(originKey, addShadowUserOnLogin, baseUrl, serverRunning, samlIdentityProviderDefinition);
+        return createIdentityProvider("simplesamlphp for uaa", originKey, addShadowUserOnLogin, baseUrl, serverRunning, samlIdentityProviderDefinition);
     }
 
     /**
@@ -595,7 +595,7 @@ public class IntegrationTestUtils {
      * @return An object representation of an identity provider.
      * @throws Exception on error
      */
-    public static IdentityProvider createIdentityProvider(String originKey, boolean addShadowUserOnLogin,
+    public static IdentityProvider createIdentityProvider(String name, String originKey, boolean addShadowUserOnLogin,
             String baseUrl, ServerRunning serverRunning, SamlIdentityProviderDefinition samlIdentityProviderDefinition) throws Exception {
         RestTemplate identityClient = IntegrationTestUtils.getClientCredentialsTemplate(
             IntegrationTestUtils.getClientCredentialsResource(baseUrl, new String[0], "identity", "identitysecret")
@@ -622,7 +622,7 @@ public class IntegrationTestUtils {
         provider.setActive(true);
         provider.setConfig(samlIdentityProviderDefinition);
         provider.setOriginKey(samlIdentityProviderDefinition.getIdpEntityAlias());
-        provider.setName("simplesamlphp for uaa");
+        provider.setName(name);
         provider = IntegrationTestUtils.createOrUpdateProvider(zoneAdminToken,baseUrl,provider);
         assertNotNull(provider.getId());
         return provider;
