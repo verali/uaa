@@ -583,6 +583,20 @@ public class IntegrationTestUtils {
      * @throws Exception on error
      */
     public static IdentityProvider createIdentityProvider(String originKey, boolean addShadowUserOnLogin, String baseUrl, ServerRunning serverRunning) throws Exception {
+
+        SamlIdentityProviderDefinition samlIdentityProviderDefinition = createSimplePHPSamlIDP(originKey, Origin.UAA);
+
+        return createIdentityProvider(originKey, addShadowUserOnLogin, baseUrl, serverRunning, samlIdentityProviderDefinition);
+    }
+
+    /**
+     * @param originKey The unique identifier used to reference the identity provider in UAA.
+     * @param addShadowUserOnLogin Specifies whether UAA should automatically create shadow users upon successful SAML authentication.
+     * @return An object representation of an identity provider.
+     * @throws Exception on error
+     */
+    public static IdentityProvider createIdentityProvider(String originKey, boolean addShadowUserOnLogin,
+            String baseUrl, ServerRunning serverRunning, SamlIdentityProviderDefinition samlIdentityProviderDefinition) throws Exception {
         RestTemplate identityClient = IntegrationTestUtils.getClientCredentialsTemplate(
             IntegrationTestUtils.getClientCredentialsResource(baseUrl, new String[0], "identity", "identitysecret")
         );
@@ -601,7 +615,6 @@ public class IntegrationTestUtils {
                 email,
                 "secr3T");
 
-        SamlIdentityProviderDefinition samlIdentityProviderDefinition = createSimplePHPSamlIDP(originKey, Origin.UAA);
         samlIdentityProviderDefinition.setAddShadowUserOnLogin(addShadowUserOnLogin);
         IdentityProvider provider = new IdentityProvider();
         provider.setIdentityZoneId(Origin.UAA);

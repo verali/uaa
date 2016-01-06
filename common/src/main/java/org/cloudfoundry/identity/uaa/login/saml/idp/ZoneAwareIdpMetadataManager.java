@@ -12,15 +12,20 @@
  * *****************************************************************************
  */
 
-package org.cloudfoundry.identity.uaa.login.saml;
+package org.cloudfoundry.identity.uaa.login.saml.idp;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudfoundry.identity.uaa.authentication.Origin;
-import org.cloudfoundry.identity.uaa.login.saml.idp.IdpMetadataManager;
-import org.cloudfoundry.identity.uaa.util.JsonUtils;
-import org.cloudfoundry.identity.uaa.zone.IdentityProvider;
-import org.cloudfoundry.identity.uaa.zone.IdentityProviderProvisioning;
+import org.cloudfoundry.identity.uaa.login.saml.ComparableProvider;
+import org.cloudfoundry.identity.uaa.login.saml.SamlIdentityProviderConfigurator;
 import org.cloudfoundry.identity.uaa.zone.IdentityZone;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneHolder;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneProvisioning;
@@ -42,61 +47,25 @@ import org.springframework.security.saml.metadata.CachingMetadataManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
 import org.springframework.security.saml.metadata.ExtendedMetadataProvider;
-import org.springframework.security.saml.metadata.MetadataManager;
 import org.springframework.security.saml.trust.httpclient.TLSProtocolConfigurer;
 
-import javax.annotation.PostConstruct;
-import javax.xml.namespace.QName;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
+public class ZoneAwareIdpMetadataManager extends IdpMetadataManager implements ExtendedMetadataProvider, InitializingBean, DisposableBean, BeanNameAware {
 
-public class ZoneAwareMetadataManager extends IdpMetadataManager implements ExtendedMetadataProvider, InitializingBean, DisposableBean, BeanNameAware {
-
-    private static final Log logger = LogFactory.getLog(ZoneAwareMetadataManager.class);
-    private IdentityProviderProvisioning providerDao;
-    private IdentityZoneProvisioning zoneDao;
-    private SamlIdentityProviderConfigurator configurator;
+    private static final Log logger = LogFactory.getLog(ZoneAwareIdpMetadataManager.class);
     private KeyManager keyManager;
     private Map<IdentityZone,ExtensionMetadataManager> metadataManagers;
     private long refreshInterval = 30000l;
     private long lastRefresh = 0;
-    private Timer timer;
-    private String beanName = ZoneAwareMetadataManager.class.getName()+"-"+System.identityHashCode(this);
-    private ProviderChangedListener providerChangedListener;
+    private String beanName = ZoneAwareIdpMetadataManager.class.getName()+"-"+System.identityHashCode(this);
 
-    public ZoneAwareMetadataManager(IdentityProviderProvisioning providerDao,
-                                    IdentityZoneProvisioning zoneDao,
-                                    SamlIdentityProviderConfigurator configurator,
-                                    KeyManager keyManager,
-                                    ProviderChangedListener listener) throws MetadataProviderException {
+    public ZoneAwareIdpMetadataManager(KeyManager keyManager) throws MetadataProviderException {
         super(Collections.<MetadataProvider>emptyList());
-        this.providerDao = providerDao;
-        this.zoneDao = zoneDao;
-        this.configurator = configurator;
         this.keyManager = keyManager;
         super.setKeyManager(keyManager);
         //disable internal timer
         super.setRefreshCheckInterval(0);
         if (metadataManagers==null) {
             metadataManagers = new ConcurrentHashMap<>();
-        }
-        providerChangedListener = listener;
-    }
-
-    private class RefreshTask extends TimerTask {
-        @Override
-        public void run() {
-            try {
-                refreshAllProviders(false);
-            }catch (Exception x) {
-                log.error("Unable to run SAML provider refresh task:", x);
-            }
         }
     }
 
@@ -105,63 +74,8 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
         this.beanName = name;
     }
 
-    @PostConstruct
-    public void checkAllProviders() throws MetadataProviderException {
-        for (Map.Entry<IdentityZone,ExtensionMetadataManager> entry : metadataManagers.entrySet()) {
-            entry.getValue().setKeyManager(keyManager);
-        }
-        refreshAllProviders();
-        timer = new Timer("ZoneAwareMetadataManager.Refresh["+beanName+"]", true);
-        timer.schedule(new RefreshTask(),refreshInterval , refreshInterval);
-        providerChangedListener.setMetadataManager(this);
-    }
-
-    protected void refreshAllProviders() throws MetadataProviderException {
-        refreshAllProviders(true);
-    }
-
     protected String getThreadNameAndId() {
         return Thread.currentThread().getName()+"-"+System.identityHashCode(Thread.currentThread());
-    }
-
-    protected void refreshAllProviders(boolean ignoreTimestamp) throws MetadataProviderException {
-        logger.debug("Running SAML IDP refresh["+getThreadNameAndId()+"] - ignoreTimestamp="+ignoreTimestamp);
-        for (IdentityZone zone : zoneDao.retrieveAll()) {
-            ExtensionMetadataManager manager = getManager(zone);
-            boolean hasChanges = false;
-            for (IdentityProvider provider : providerDao.retrieveAll(false,zone.getId())) {
-                if (Origin.SAML.equals(provider.getType()) && (ignoreTimestamp || lastRefresh < provider.getLastModified().getTime())) {
-                    try {
-                        SamlIdentityProviderDefinition definition = (SamlIdentityProviderDefinition)provider.getConfig();
-                        try {
-                            if (provider.isActive()) {
-                                log.info("Adding SAML IDP zone[" + zone.getId() + "] alias[" + definition.getIdpEntityAlias() + "]");
-                                ExtendedMetadataDelegate[] delegates = configurator.addSamlIdentityProviderDefinition(definition);
-                                if (delegates[1] != null) {
-                                    manager.removeMetadataProvider(delegates[1]);
-                                }
-                                manager.addMetadataProvider(delegates[0]);
-                            } else {
-                                log.info("Removing SAML IDP zone[" + zone.getId() + "] alias[" + definition.getIdpEntityAlias() + "]");
-                                ExtendedMetadataDelegate delegate = configurator.removeIdentityProviderDefinition(definition);
-                                if (delegate!=null) {
-                                    manager.removeMetadataProvider(delegate);
-                                }
-                            }
-                            hasChanges = true;
-                        } catch (MetadataProviderException e) {
-                            logger.error("Unable to refresh identity provider:"+definition, e);
-                        }
-                    } catch (JsonUtils.JsonUtilException x) {
-                        logger.error("Unable to load provider:"+provider, x);
-                    }
-                }
-            }
-            if (hasChanges) {
-                refreshZoneManager(manager);
-            }
-        }
-        lastRefresh = System.currentTimeMillis();
     }
 
     protected ExtensionMetadataManager getManager(IdentityZone zone) {
@@ -266,7 +180,7 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
 
     @Override
     public String getHostedIdpName() {
-        return getManager().getHostedIdpName();
+        return getManager().getHostedIdPName();
     }
 
     @Override
@@ -396,11 +310,6 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
 
     @Override
     public void destroy() {
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
-            timer = null;
-        }
         for (Map.Entry<IdentityZone,ExtensionMetadataManager> manager : metadataManagers.entrySet()) {
             manager.getValue().destroy();
         }
@@ -413,42 +322,10 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
         return super.getExtendedMetadata(entityID);
     }
 
-    protected Set<ComparableProvider> refreshZoneManager(ExtensionMetadataManager manager) {
-        Set<ComparableProvider> result = new HashSet<>();
-        try {
-
-            log.trace("Executing metadata refresh task");
-
-            // Invoking getMetadata performs a refresh in case it's needed
-            // Potentially expensive operation, but other threads can still load existing cached data
-            for (MetadataProvider provider : manager.getProviders()) {
-                provider.getMetadata();
-            }
-
-            // Refresh the metadataManager if needed
-            if (manager.isRefreshRequired()) {
-                manager.refreshMetadata();
-            }
-
-
-            for (MetadataProvider provider : manager.getProviders()) {
-                if (provider instanceof ComparableProvider) {
-                    result.add((ComparableProvider)provider);
-                } else if (provider instanceof ExtendedMetadataDelegate &&
-                           ((ExtendedMetadataDelegate)provider).getDelegate() instanceof ComparableProvider) {
-                    result.add((ComparableProvider)((ExtendedMetadataDelegate)provider).getDelegate());
-                }
-            }
-
-        } catch (Throwable e) {
-            log.warn("Metadata refreshing has failed", e);
-        }
-        return result;
-    }
-
     //just so that we can override protected methods
     public static class ExtensionMetadataManager extends CachingMetadataManager {
-        private String hostedIdpName;
+
+        private String hostedIdPName;
 
         public ExtensionMetadataManager(List<MetadataProvider> providers) throws MetadataProviderException {
             super(providers);
@@ -525,12 +402,8 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
             return super.getDefaultIDP();
         }
 
-        public String getHostedIdpName() {
-            return hostedIdpName;
-        }
-
-        public void setHostedIdpName(String hostedIdpName) {
-            this.hostedIdpName = hostedIdpName;
+        public String getHostedIdPName() {
+            return hostedIdPName;
         }
 
         @Override
