@@ -499,6 +499,7 @@ public class IdpMetadataGenerator {
            }
            result.append("alias/");
            result.append(entityAlias);
+           result.append("/idp");
        }
 
        String resultString = result.toString();

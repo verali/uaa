@@ -35,7 +35,7 @@
                 <security:filter-chain pattern="/saml/SSO/**" filters="samlSecurityContextPersistenceFilter,samlWebSSOProcessingFilter" />
                 <security:filter-chain pattern="/saml/SingleLogout/**" filters="samlLogoutProcessingFilter" />
                 <security:filter-chain pattern="/saml/discovery/**" filters="samlIDPDiscovery" />
-                <!--<security:filter-chain pattern="/saml/idp/SSO/**" filters="samlIdpWebSsoProcessingFilter" />-->
+                <security:filter-chain pattern="/saml/idp/SSO/**" filters="samlSecurityContextPersistenceFilter,samlIdpWebSSOProcessingFilter" />
                 <!--<security:filter-chain pattern="/oauth/authorize/**" filters="exceptionTranslationFilter" />-->
             </security:filter-chain-map>
         </bean>
@@ -326,13 +326,25 @@ qy45ptdwJLqLJCeNoR0JUcDNIRhOCuOPND7pcMtX6hI/
 
         <!-- Begin SAML IdP -->
 
+        <security:authentication-manager id="samlIdpAuthenticationManager">
+            <security:authentication-provider ref="samlIdpAuthenticationProvider" />
+        </security:authentication-manager>
+
+        <bean id="samlIdpAuthenticationProvider"
+            class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationProvider" />
+
         <!-- SAML IdP processing filter for WebSSO profile messages. -->
-<!--         <bean id="samlIdpWebSsoProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter"> -->
-<!--             <property name="authenticationManager" ref="samlAuthenticationManager" /> -->
+        <bean id="samlIdpWebSSOProcessingFilter"
+            class="org.springframework.security.saml.SAMLProcessingFilter">
+            <constructor-arg value="/saml/idp/SSO" />
+            <property name="authenticationManager" ref="samlIdpAuthenticationManager" />
 <!--             <property name="authenticationSuccessHandler" ref="successRedirectHandler" /> -->
 <!--             <property name="authenticationFailureHandler" ref="samlLoginFailureHandler" /> -->
-<!--             <property name="contextProvider" ref="contextProvider" /> -->
-<!--         </bean> -->
+            <property name="contextProvider" ref="idpContextProvider" />
+        </bean>
+
+        <bean id="idpContextProvider"
+            class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLContextProviderImpl" />
 
         <!-- Filter automatically generates default IdP metadata -->
         <bean id="idpMetadataGeneratorFilter"
@@ -347,6 +359,7 @@ qy45ptdwJLqLJCeNoR0JUcDNIRhOCuOPND7pcMtX6hI/
             <property name="wantAuthnRequestSigned" value="${login.saml.wantAuthnRequestSigned:false}" />
             <property name="entityBaseURL" value="${login.entityBaseURL:http://localhost:8080/uaa}" />
             <property name="entityId" ref="samlIdpEntityID" />
+            <property name="samlWebSSOFilter" ref="samlIdpWebSSOProcessingFilter" />
         </bean>
 
         <bean id="idpExtendedMetaData" class="org.springframework.security.saml.metadata.ExtendedMetadata">
