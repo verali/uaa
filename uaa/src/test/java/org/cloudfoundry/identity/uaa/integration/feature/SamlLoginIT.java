@@ -172,7 +172,7 @@ public class SamlLoginIT {
 
         IdentityProvider provider = IntegrationTestUtils.createIdentityProvider("simplesamlphp", false, baseUrl, serverRunning);
         String clientId = "app-addnew-false"+ new RandomValueStringGenerator().generate();
-        String redirectUri = "http://nosuchhostname:0/nosuchendpoint";
+        String redirectUri = "http://localhost/nosuchendpoint";
         BaseClientDetails client = createClientAndSpecifyProvider(clientId, provider, redirectUri);
 
         //tells us that we are on travis
@@ -812,6 +812,7 @@ public class SamlLoginIT {
         webDriver.get(baseUrl + "/logout.do");
         webDriver.get(testZone1Url + "/logout.do");
         webDriver.get(testZone1Url + "/login");
+        IntegrationTestUtils.takeScreenShot(webDriver);
         Assert.assertEquals(zone.getName(), webDriver.getTitle());
 
         List<WebElement> elements = webDriver.findElements(By.xpath("//a[text()='"+ samlIdentityProviderDefinition.getLinkText()+"']"));
