@@ -138,7 +138,7 @@ public class SamlLoginWithLocalIdpIT {
         SamlIdentityProviderDefinition idpDefinition = createLocalSamlIDP("unit-test-idp", "uaa");
     }
 
-    //@Test
+    @Test
     public void testCreateSamlIdp() throws Exception {
         SamlIdentityProviderDefinition idpDef = createLocalSamlIDP("unit-test-idp", "uaa");
         IntegrationTestUtils.createIdentityProvider("Local SAML IdP", "unit-test-idp", true, this.baseUrl, this.serverRunning, idpDef);

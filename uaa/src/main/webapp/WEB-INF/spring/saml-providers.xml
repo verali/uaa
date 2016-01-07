@@ -338,9 +338,19 @@ qy45ptdwJLqLJCeNoR0JUcDNIRhOCuOPND7pcMtX6hI/
             class="org.springframework.security.saml.SAMLProcessingFilter">
             <constructor-arg value="/saml/idp/SSO" />
             <property name="authenticationManager" ref="samlIdpAuthenticationManager" />
-<!--             <property name="authenticationSuccessHandler" ref="successRedirectHandler" /> -->
+            <property name="authenticationSuccessHandler" ref="samlIdpSuccessHandler" />
 <!--             <property name="authenticationFailureHandler" ref="samlLoginFailureHandler" /> -->
             <property name="contextProvider" ref="idpContextProvider" />
+        </bean>
+
+        <bean id="samlIdpSuccessHandler"
+            class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationSuccessHandler">
+            <property name="idpWebSSOProfile" ref="idpWebSSOProfileImpl" />
+            <property name="metadata" ref="metadata" />
+        </bean>
+
+        <bean id="idpWebSSOProfileImpl"
+            class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpWebSSOProfileImpl">
         </bean>
 
         <bean id="idpContextProvider"
