@@ -102,6 +102,7 @@ task integrationTest(type: Test) {
   dependsOn parent.cargoStartLocal, parent.resetCoverage
   systemProperty "https.proxyHost", "grc-americas-pitc-sanraz.proxy.corporate.gtm.ge.com"
   systemProperty "https.proxyPort", "8080"
+  systemProperty "https.nonProxyHosts", "localhost,testzone1.localhost,testzone2.localhost,127.0.0.1,nosuchhostname"
   finalizedBy parent.flushCoverageData
 
   filter {
