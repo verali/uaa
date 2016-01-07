@@ -809,10 +809,11 @@ public class SamlLoginIT {
         assertNotNull(provider.getId());
 
         String testZone1Url = baseUrl.replace("localhost", zoneId+".localhost");
+        System.out.println("Base URL: " + baseUrl + " Test Zone URL: " + testZone1Url);
         webDriver.get(baseUrl + "/logout.do");
         webDriver.get(testZone1Url + "/logout.do");
         webDriver.get(testZone1Url + "/login");
-        IntegrationTestUtils.takeScreenShot(webDriver);
+        // IntegrationTestUtils.takeScreenShot(webDriver);
         Assert.assertEquals(zone.getName(), webDriver.getTitle());
 
         List<WebElement> elements = webDriver.findElements(By.xpath("//a[text()='"+ samlIdentityProviderDefinition.getLinkText()+"']"));
