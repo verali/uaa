@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Cloud Foundry Copyright (c) [2009-2014] Pivotal Software, Inc. All Rights 
+    Reserved. This product is licensed to you under the Apache License, Version 
+    2.0 (the "License"). You may not use this product except in compliance with 
+    the License. This product includes a number of subcomponents with separate 
+    copyright notices and license terms. Your use of these subcomponents is subject 
+    to the terms and conditions of the subcomponent's license, as noted in the 
+    LICENSE file. -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
+
+    <security:http name="samlIdpSecurity"
+        create-session="stateless"
+        entry-point-ref="oauthAuthenticationEntryPoint"
+        authentication-manager-ref="emptyAuthenticationManager"
+        use-expressions="true"
+        xmlns="http://www.springframework.org/schema/security" >
+        <intercept-url pattern="/saml/idp/**" access="#oauth2.hasScope('uaa.user')" />
+        <custom-filter ref="backwardsCompatibleScopeParameter" position="FIRST"/>
+        <custom-filter ref="samlIdpFilter" after="LOGIN_PAGE_FILTER" />
+        <access-denied-handler ref="oauthAccessDeniedHandler" />
+        <expression-handler ref="oauthWebExpressionHandler" />
+        <anonymous enabled="false" />
+        <csrf disabled="true"/>
+    </security:http>
+
+    <bean id="samlIdpFilter" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map
+            request-matcher="ant">
+            <security:filter-chain pattern="/saml/idp/SSO/**"
+                filters="samlSecurityContextPersistenceFilter,samlIdpWebSSOProcessingFilter" />
+        </security:filter-chain-map>
+    </bean>
+
+    <security:authentication-manager id="samlIdpAuthenticationManager">
+        <security:authentication-provider
+            ref="samlIdpAuthenticationProvider" />
+    </security:authentication-manager>
+
+    <bean id="samlIdpAuthenticationProvider"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationProvider" />
+
+    <!-- SAML IdP processing filter for WebSSO profile messages. -->
+    <bean id="samlIdpWebSSOProcessingFilter"
+        class="org.springframework.security.saml.SAMLProcessingFilter">
+        <constructor-arg value="/saml/idp/SSO" />
+        <property name="authenticationManager" ref="samlIdpAuthenticationManager" />
+        <property name="authenticationSuccessHandler" ref="samlIdpSuccessHandler" />
+        <!-- <property name="authenticationFailureHandler" ref="samlLoginFailureHandler" /> -->
+        <property name="contextProvider" ref="idpContextProvider" />
+    </bean>
+
+    <bean id="samlIdpSuccessHandler"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationSuccessHandler">
+        <property name="idpWebSSOProfile" ref="idpWebSSOProfileImpl" />
+        <property name="metadata" ref="metadata" />
+    </bean>
+
+    <bean id="idpWebSSOProfileImpl"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpWebSSOProfileImpl">
+    </bean>
+
+    <bean id="idpContextProvider"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLContextProviderImpl" />
+
+    <!-- Filter automatically generates default IdP metadata -->
+    <bean id="idpMetadataGeneratorFilter"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpMetadataGeneratorFilter">
+        <constructor-arg ref="zoneAwareIdpMetadataGenerator" />
+        <property name="manager" ref="metadata" />
+    </bean>
+
+    <bean id="zoneAwareIdpMetadataGenerator"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.ZoneAwareIdpMetadataGenerator">
+        <property name="extendedMetadata" ref="idpExtendedMetaData" />
+        <property name="wantAuthnRequestSigned"
+            value="${login.saml.wantAuthnRequestSigned:false}" />
+        <property name="entityBaseURL"
+            value="${login.entityBaseURL:http://localhost:8080/uaa}" />
+        <property name="entityId" ref="samlIdpEntityID" />
+        <property name="samlWebSSOFilter" ref="samlIdpWebSSOProcessingFilter" />
+    </bean>
+
+    <bean id="idpExtendedMetaData"
+        class="org.springframework.security.saml.metadata.ExtendedMetadata">
+        <!-- <property name="idpDiscoveryEnabled" value="true" /> -->
+        <property name="alias"
+            value="#{T(org.cloudfoundry.identity.uaa.util.UaaStringUtils).getHostIfArgIsURL(@samlIdpAlias)}" />
+        <property name="signMetadata" value="${login.saml.signMetaData:true}" />
+    </bean>
+
+    <bean id="samlIdpAlias" class="java.lang.String">
+        <constructor-arg
+            value="${login.saml.idp.entityIDAlias:${login.idp.entityID:unit-test-idp}}" />
+    </bean>
+
+    <bean id="samlIdpEntityID" class="java.lang.String">
+        <constructor-arg value="${login.idp.entityID:unit-test-idp}" />
+    </bean>
+
+</beans>

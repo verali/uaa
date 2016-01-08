@@ -294,14 +294,17 @@
         <security:csrf disabled="true"/>
     </security:http>
 
+    <!-- Begin SAML IdP Support-->
 
+    <!-- this bean will be overwritten in the saml profile -->
+    <bean id="idpMetadataGeneratorFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
+
+    <!-- End SAML IdP Support -->
 
     <bean id="httpsHeaderFilter" class="org.cloudfoundry.identity.web.HttpsHeaderFilter" />
 
     <!-- this bean will be overwritten in the saml profile -->
     <bean id="metadataGeneratorFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
-    <!-- this bean will be overwritten in the saml profile -->
-    <bean id="idpMetadataGeneratorFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
     <!-- this bean will be overwritten in the saml profile -->
     <bean id="samlFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
 
