@@ -12,10 +12,14 @@
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.integration.feature;
 
+import org.apache.commons.lang3.StringUtils;
 import org.cloudfoundry.identity.uaa.test.UaaTestAccounts;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.phantomjs.PhantomJSDriver;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.Proxy;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,12 +54,37 @@ public class DefaultIntegrationTestConfig {
     @Bean(destroyMethod = "quit")
     public PhantomJSDriver webDriver() {
         DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+        Proxy proxyObject =  createProxyObject();
+        if (proxyObject != null)
+            desiredCapabilities.setCapability(CapabilityType.PROXY, proxyObject);
         PhantomJSDriver driver = new PhantomJSDriver(desiredCapabilities);
         driver.manage().timeouts().implicitlyWait(15, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(20, TimeUnit.SECONDS);
         driver.manage().timeouts().setScriptTimeout(15, TimeUnit.SECONDS);
         driver.manage().window().setSize(new Dimension(1024, 768));
         return driver;
+    }
+    
+    private Proxy createProxyObject()
+    {
+        String proxyHost = System.getProperty("http.proxyHost");
+        System.out.println("Proxy Host Initial Value: " + proxyHost);
+        if (StringUtils.isBlank(proxyHost))  return null;
+        String proxyPort = System.getProperty("http.proxyPort");
+        if (!StringUtils.isBlank(proxyPort))
+        {
+            proxyHost = proxyHost + ':' + proxyPort;
+        }
+        String noProxiesHosts = System.getProperty("http.nonProxyHosts");
+        Proxy proxy = new Proxy();
+        proxy.setHttpProxy(proxyHost);
+        if (!StringUtils.isBlank(noProxiesHosts))
+        {
+            proxy.setNoProxy(noProxiesHosts);
+        }
+        System.out.println("Proxy Host: " + proxyHost + " No Proxies List: " + noProxiesHosts);
+        System.out.println("Created Proxy object: " + proxy);
+        return proxy;
     }
 
     @Bean(destroyMethod = "stop")
