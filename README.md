@@ -32,6 +32,10 @@ If this works you are in business:
 The apps all work together with the apps running on the same port
 (8080) as [`/uaa`](http://localhost:8080/uaa), [`/app`](http://localhost:8080/app) and [`/api`](http://localhost:8080/api). 
 
+Note: If you are in a network which requires a proxy for internet connectivity, you will need to configure it:
+	export GRADLE_OPTS='-Dhttp.proxyHost=<PROXY_HOST> -Dhttp.proxyPort=<PROXY_PORT> -Dhttps.proxyHost=<PROXY_HOST> -Dhttps.proxyPort=<PROXY_PORT> \
+                            -Dhttp.nonProxyHosts="127.0.0.1|localhost|*.localhost"'
+
 ### Deploy to Cloud Foundry
 
 You can also build the app and push it to Cloud Foundry, e.g.

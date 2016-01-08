@@ -269,6 +269,7 @@
         <security:custom-filter after="FIRST" ref="httpsHeaderFilter" />
         <security:custom-filter before="BASIC_AUTH_FILTER" ref="idpMetadataGeneratorFilter" />
         <security:custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter" />
+        <security:custom-filter after="FILTER_SECURITY_INTERCEPTOR" ref="samlIdpFilter" />
         <security:custom-filter ref="oauth2ClientFilter" after="EXCEPTION_TRANSLATION_FILTER" />
         <security:logout logout-url="/logout" success-handler-ref="logoutHandler" />
         <security:openid-login login-page="/login" user-service-ref="openIdUserDetailsService"
@@ -298,6 +299,8 @@
 
     <!-- this bean will be overwritten in the saml profile -->
     <bean id="idpMetadataGeneratorFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
+    <!-- this bean will be overwritten in the saml profile -->
+    <bean id="samlIdpFilter" class="org.cloudfoundry.identity.web.NoOpFilter" />
 
     <!-- End SAML IdP Support -->
 

@@ -4,8 +4,6 @@ import org.joda.time.DateTime;
 import org.opensaml.common.SAMLException;
 import org.opensaml.common.SAMLObjectBuilder;
 import org.opensaml.common.SAMLVersion;
-import org.opensaml.common.xml.SAMLConstants;
-import org.opensaml.saml1.core.AuthenticationStatement;
 import org.opensaml.saml2.core.Assertion;
 import org.opensaml.saml2.core.Audience;
 import org.opensaml.saml2.core.AudienceRestriction;
@@ -13,7 +11,6 @@ import org.opensaml.saml2.core.AuthnContext;
 import org.opensaml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml2.core.AuthnRequest;
 import org.opensaml.saml2.core.AuthnStatement;
-import org.opensaml.saml2.core.Condition;
 import org.opensaml.saml2.core.Conditions;
 import org.opensaml.saml2.core.NameID;
 import org.opensaml.saml2.core.NameIDType;
@@ -29,7 +26,7 @@ import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
-import org.opensaml.xacml.ctx.StatusCodeType;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.websso.WebSSOProfileImpl;
 import org.springframework.security.saml.websso.WebSSOProfileOptions;
@@ -37,7 +34,7 @@ import org.springframework.security.saml.websso.WebSSOProfileOptions;
 public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSOProfile {
 
     @Override
-    public void sendResponse(SAMLMessageContext context, WebSSOProfileOptions options)
+    public void sendResponse(Authentication authentication, SAMLMessageContext context, WebSSOProfileOptions options)
             throws SAMLException, MetadataProviderException, MessageEncodingException{
 
         IDPSSODescriptor idpDescriptor = (IDPSSODescriptor) context.getLocalEntityRoleMetadata();
@@ -49,7 +46,7 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
         context.setPeerEntityEndpoint(assertionConsumerService);
 
         //boolean signAssertions = spDescriptor.getWantAssertionsSigned();
-        Assertion assertion = buildAssertion(authnRequest, context.getPeerEntityId(), context.getLocalEntityId(), "marissa");
+        Assertion assertion = buildAssertion(authnRequest, context.getPeerEntityId(), context.getLocalEntityId(), authentication.getName());
         Response samlResponse = createResponse(context, assertionConsumerService, assertion);
         context.setOutboundMessage(samlResponse);
         context.setOutboundSAMLMessage(samlResponse);

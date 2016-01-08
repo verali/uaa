@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
+import org.cloudfoundry.identity.uaa.oauth.token.OpenIdToken;
 import org.opensaml.common.SAMLException;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -37,7 +38,11 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        SAMLAuthenticationToken token = (SAMLAuthenticationToken) authentication;
+        IdpSamlAuthentication idpSamlAuthentication = (IdpSamlAuthentication) authentication;
+        IdpSamlCredentialsHolder credentials = (IdpSamlCredentialsHolder) authentication.getCredentials();
+        SAMLAuthenticationToken token = (SAMLAuthenticationToken) credentials.getSamlAuthenticationToken();
+        Authentication openIdAuthentication = credentials.getOpenidAuthenticationToken();
+
         SAMLMessageContext context = token.getCredentials();
         try {
             populatePeerContext(context);
@@ -48,7 +53,8 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
         // TODO: Review error handler of success handler for SAML processing filter.
         try {
             WebSSOProfileOptions options = new WebSSOProfileOptions();
-            idpWebSSOProfile.sendResponse(context, options);
+            // TODO: Just pass the entire IdpSamlAuthentication instead.
+            idpWebSSOProfile.sendResponse(openIdAuthentication, context, options);
         } catch (SAMLException e) {
             //logger.debug("Incoming SAML message is invalid", e);
             throw new AuthenticationServiceException("Incoming SAML message is invalid.", e);

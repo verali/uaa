@@ -13,21 +13,6 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
               http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.0.xsd">
 
-    <security:http name="samlIdpSecurity"
-        create-session="stateless"
-        entry-point-ref="oauthAuthenticationEntryPoint"
-        authentication-manager-ref="emptyAuthenticationManager"
-        use-expressions="true"
-        xmlns="http://www.springframework.org/schema/security" >
-        <intercept-url pattern="/saml/idp/**" access="#oauth2.hasScope('uaa.user')" />
-        <custom-filter ref="backwardsCompatibleScopeParameter" position="FIRST"/>
-        <custom-filter ref="samlIdpFilter" after="LOGIN_PAGE_FILTER" />
-        <access-denied-handler ref="oauthAccessDeniedHandler" />
-        <expression-handler ref="oauthWebExpressionHandler" />
-        <anonymous enabled="false" />
-        <csrf disabled="true"/>
-    </security:http>
-
     <bean id="samlIdpFilter" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map
             request-matcher="ant">
