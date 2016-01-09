@@ -53,7 +53,7 @@
                     <entry key="admin">
                         <map>
                             <entry key="id" value="admin" />
-                            <entry key="authorized-grant-types" value="client_credentials" />
+                            <entry key="authorized-grant-types" value="client_credentials,urn:ietf:params:oauth:grant-type:jwt-bearer" />
                             <entry key="scope" value="uaa.none" />
                             <entry key="authorities" value="uaa.admin,clients.read,clients.write,clients.secret,scim.read,scim.write,clients.admin" />
                             <entry key="secret" value="adminsecret" />

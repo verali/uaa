@@ -39,6 +39,7 @@
         <oauth:refresh-token />
         <oauth:client-credentials />
         <oauth:password authentication-manager-ref="compositeAuthenticationManager" />
+        <oauth:custom-grant token-granter-ref="jwtBearerTokenGranter"/>
     </oauth:authorization-server>
 
     <!-- Owner password flow for external authentication (SAML) -->
@@ -103,7 +104,13 @@
         <constructor-arg index="1" ref="jdbcClientDetailsService"/>
         <constructor-arg index="2" ref="authorizationRequestManager"/>
     </bean>
-
+    
+    <bean id="jwtBearerTokenGranter" class="com.ge.predix.token.JwtBearerTokenGranter">
+    	<constructor-arg index="0" ref="tokenServices"/>
+        <constructor-arg index="1" ref="jdbcClientDetailsService"/>
+        <constructor-arg index="2" ref="authorizationRequestManager"/>
+    </bean>
+    
     <!--/oauth/token with any match -->
     <http name="tokenEndpointSecurity" create-session="stateless" authentication-manager-ref="clientAuthenticationManager" use-expressions="false"
         pattern="/oauth/token/**" entry-point-ref="basicAuthenticationEntryPoint" xmlns="http://www.springframework.org/schema/security">
@@ -112,6 +119,7 @@
         <custom-filter ref="backwardsCompatibleScopeParameter" position="FIRST"/>
         <custom-filter ref="clientAuthenticationFilter" position="BASIC_AUTH_FILTER" />
         <custom-filter ref="tokenEndpointAuthenticationFilter" after="BASIC_AUTH_FILTER" />
+        <custom-filter ref="jwtBearerAuthenticationFilter" before="FILTER_SECURITY_INTERCEPTOR" />
         <access-denied-handler ref="oauthAccessDeniedHandler" />
         <csrf disabled="true"/>
     </http>
@@ -150,7 +158,13 @@
         <constructor-arg ref="basicAuthenticationEntryPoint" />
         <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
     </bean>
+    
 
+	<bean id="jwtBearerAuthenticationFilter" class="com.ge.predix.uaa.authentication.JwtBearerAuthenticationFilter">
+        <constructor-arg ref="clientAuthenticationManager" />
+        <property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
+    </bean>
+    
     <bean id="compositeAuthenticationManager" class="org.cloudfoundry.identity.uaa.authentication.manager.CompositeAuthenticationManager" />
 
     <bean id="tokenEndpointAuthenticationFilter" class="org.cloudfoundry.identity.uaa.authentication.BackwardsCompatibleTokenEndpointAuthenticationFilter">
