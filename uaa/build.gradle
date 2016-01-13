@@ -75,6 +75,8 @@ test {
   dependsOn identityCommon.instrumentedJar, identityScim.instrumentedJar, identityLogin.instrumentedJar
   exclude 'org/cloudfoundry/identity/uaa/integration/*.class'
   exclude '**/*IT.class'
+  exclude 'org/cloudfoundry/identity/uaa/acceptance/*.class'
+  exclude '**/*AT.class'
   systemProperty "mock.suite.test", "true"
 }
 
@@ -88,6 +90,18 @@ task integrationTest(type: Test) {
     includeTestsMatching "*IT"
   }
 }
+
+task acceptanceTest(type: Test) {
+	dependsOn parent.cargoStartLocal, parent.resetCoverage
+  
+	finalizedBy parent.flushCoverageData
+    
+	filter {
+	  includeTestsMatching "org.cloudfoundry.identity.uaa.acceptance.*"
+	  includeTestsMatching "*AT"
+	}
+  }
+  
 
 task instrumentedWar(type: War, dependsOn: instrument) {
   dependsOn identityCommon.tasks.findByName('instrumentedJar'),
