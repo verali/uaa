@@ -164,6 +164,9 @@ public class JdbcSamlServiceProviderProvisioning implements SamlServiceProviderP
             samlServiceProvider.setLastModified(rs.getTimestamp(pos++));
             samlServiceProvider.setName(rs.getString(pos++));
             samlServiceProvider.setEntityId(rs.getString(pos++));
+            String config = rs.getString(pos++);
+            SamlServiceProviderDefinition definition = JsonUtils.readValue(config, SamlServiceProviderDefinition.class);
+            samlServiceProvider.setConfig(definition);
             samlServiceProvider.setIdentityZoneId(rs.getString(pos++));
             samlServiceProvider.setActive(rs.getBoolean(pos++));
             return samlServiceProvider;

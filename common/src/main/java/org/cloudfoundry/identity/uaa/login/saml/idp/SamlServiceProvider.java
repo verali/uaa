@@ -125,7 +125,9 @@ public class SamlServiceProvider {
 
     public SamlServiceProvider setEntityId(String entityId) {
         this.entityId = entityId;
-        config.setSpEntityId(entityId);
+        if (config != null) {
+            config.setSpEntityId(entityId);
+        }
         return this;
     }
 
@@ -144,7 +146,9 @@ public class SamlServiceProvider {
 
     public SamlServiceProvider setIdentityZoneId(String identityZoneId) {
         this.identityZoneId = identityZoneId;
-        config.setZoneId(identityZoneId);
+        if (config != null) {
+            config.setZoneId(identityZoneId);
+        }
         return this;
     }
 
