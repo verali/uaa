@@ -87,8 +87,16 @@
         <constructor-arg value="${login.idp.entityID:unit-test-idp}" />
     </bean>
 
-    <bean id="spMetaDataProviders" class="org.cloudfoundry.identity.uaa.login.saml.idp.SamlServiceProviderConfigurator">
+    <bean id="spMetaDataProviders"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.SamlServiceProviderConfigurator">
         <property name="clientParams" ref="httpClientParams" />
         <property name="parserPool" ref="parserPool"/>
+    </bean>
+
+    <bean id="serviceProviderChangedListener"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.SamlServiceProviderChangedListener">
+        <constructor-arg name="configurator" ref="spMetaDataProviders"/>
+        <constructor-arg name="zoneProvisioning" ref="identityZoneProvisioning"/>
+        <property name="metadataManager" ref="metadata" />
     </bean>
 </beans>

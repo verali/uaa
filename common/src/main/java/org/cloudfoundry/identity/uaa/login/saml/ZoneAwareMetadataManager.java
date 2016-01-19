@@ -164,7 +164,7 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
         lastRefresh = System.currentTimeMillis();
     }
 
-    protected ExtensionMetadataManager getManager(IdentityZone zone) {
+    public ExtensionMetadataManager getManager(IdentityZone zone) {
         if (metadataManagers==null) { //called during super constructor
             metadataManagers = new ConcurrentHashMap<>();
         }
@@ -180,7 +180,7 @@ public class ZoneAwareMetadataManager extends IdpMetadataManager implements Exte
         }
         return metadataManagers.get(zone);
     }
-    protected ExtensionMetadataManager getManager() {
+    public ExtensionMetadataManager getManager() {
         return getManager(IdentityZoneHolder.get());
     }
 
