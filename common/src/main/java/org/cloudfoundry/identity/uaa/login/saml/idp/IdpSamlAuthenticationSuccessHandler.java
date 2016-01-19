@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 
-import org.cloudfoundry.identity.uaa.oauth.token.OpenIdToken;
+import org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlAuthentication.IdpSamlCredentialsHolder;
 import org.opensaml.common.SAMLException;
 import org.opensaml.common.xml.SAMLConstants;
 import org.opensaml.saml2.metadata.EntityDescriptor;
@@ -25,12 +25,12 @@ import org.springframework.security.saml.websso.WebSSOProfileOptions;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.Assert;
 
-public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
-    private IdpWebSSOProfile idpWebSSOProfile;
-    private MetadataManager metadata;
+    private IdpWebSsoProfile idpWebSsoProfile;
+    private MetadataManager metadataManager;
 
-    public IdpSAMLAuthenticationSuccessHandler() {
+    public IdpSamlAuthenticationSuccessHandler() {
         super();
     }
 
@@ -38,7 +38,6 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        IdpSamlAuthentication idpSamlAuthentication = (IdpSamlAuthentication) authentication;
         IdpSamlCredentialsHolder credentials = (IdpSamlCredentialsHolder) authentication.getCredentials();
         SAMLAuthenticationToken token = (SAMLAuthenticationToken) credentials.getSamlAuthenticationToken();
         Authentication openIdAuthentication = credentials.getOpenidAuthenticationToken();
@@ -54,7 +53,7 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
         try {
             WebSSOProfileOptions options = new WebSSOProfileOptions();
             // TODO: Just pass the entire IdpSamlAuthentication instead.
-            idpWebSSOProfile.sendResponse(openIdAuthentication, context, options);
+            idpWebSsoProfile.sendResponse(openIdAuthentication, context, options);
         } catch (SAMLException e) {
             //logger.debug("Incoming SAML message is invalid", e);
             throw new AuthenticationServiceException("Incoming SAML message is invalid.", e);
@@ -76,9 +75,9 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
             throw new MetadataProviderException("Peer entity ID wasn't specified, but is requested");
         }
 
-        EntityDescriptor entityDescriptor = metadata.getEntityDescriptor(peerEntityId);
-        RoleDescriptor roleDescriptor = metadata.getRole(peerEntityId, peerEntityRole, SAMLConstants.SAML20P_NS);
-        ExtendedMetadata extendedMetadata = metadata.getExtendedMetadata(peerEntityId);
+        EntityDescriptor entityDescriptor = metadataManager.getEntityDescriptor(peerEntityId);
+        RoleDescriptor roleDescriptor = metadataManager.getRole(peerEntityId, peerEntityRole, SAMLConstants.SAML20P_NS);
+        ExtendedMetadata extendedMetadata = metadataManager.getExtendedMetadata(peerEntityId);
 
         if (entityDescriptor == null || roleDescriptor == null) {
             throw new MetadataProviderException("Metadata for entity " + peerEntityId + " and role " + peerEntityRole + " wasn't found");
@@ -90,14 +89,14 @@ public class IdpSAMLAuthenticationSuccessHandler implements AuthenticationSucces
     }
 
     @Autowired
-    public void setIdpWebSSOProfile(IdpWebSSOProfile idpWebSSOProfile) {
-        Assert.notNull(idpWebSSOProfile, "SAML web sso profile can't be null.");
-        this.idpWebSSOProfile = idpWebSSOProfile;
+    public void setIdpWebSsoProfile(IdpWebSsoProfile idpWebSsoProfile) {
+        Assert.notNull(idpWebSsoProfile, "SAML Web SSO profile can't be null.");
+        this.idpWebSsoProfile = idpWebSsoProfile;
     }
 
     @Autowired
-    public void setMetadata(MetadataManager metadata) {
-        Assert.notNull(metadata, "SAML metadata manager can't be null.");
-        this.metadata = metadata;
+    public void setMetadataManager(MetadataManager metadataManager) {
+        Assert.notNull(metadataManager, "SAML metadata manager can't be null.");
+        this.metadataManager = metadataManager;
     }
 }

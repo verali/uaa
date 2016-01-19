@@ -5,7 +5,21 @@ import java.util.Collection;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * This authentication object represents an SAML authentication requests that was authenticated using an openId login.
+ * In other words, when the local SAML identity provider receives an authentication request from an external SAML
+ * service provider, it authenticates the user using the UAA spring openId login page. UAA stores the result of that
+ * authentication in an instance of this object. As such this object consists of a holder that contains both a
+ * SamlAuthenticationToken, which provides the SAML context, and an OpenIdAuthenticationToken, which provides the
+ * authentication details of the authenticated user.
+ *
+ */
 public class IdpSamlAuthentication implements Authentication {
+
+    /**
+     * Generated serialization id.
+     */
+    private static final long serialVersionUID = -4895486519411522514L;
 
     private final IdpSamlCredentialsHolder credentials;
 
@@ -15,14 +29,12 @@ public class IdpSamlAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        // TODO Auto-generated method stub
-        return null;
+        return credentials.getOpenidAuthenticationToken().getName();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // TODO Auto-generated method stub
-        return null;
+        return credentials.getOpenidAuthenticationToken().getAuthorities();
     }
 
     @Override
@@ -32,25 +44,40 @@ public class IdpSamlAuthentication implements Authentication {
 
     @Override
     public Object getDetails() {
-        // TODO Auto-generated method stub
-        return null;
+        return credentials.getOpenidAuthenticationToken().getDetails();
     }
 
     @Override
     public Object getPrincipal() {
-        // TODO Auto-generated method stub
-        return null;
+        return credentials.getOpenidAuthenticationToken().getPrincipal();
     }
 
     @Override
     public boolean isAuthenticated() {
-        // TODO Auto-generated method stub
-        return false;
+        return credentials.getOpenidAuthenticationToken().isAuthenticated();
     }
 
     @Override
     public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        // TODO Auto-generated method stub
-        
+        // Do nothing.
+    }
+
+    public static class IdpSamlCredentialsHolder {
+
+        private final Authentication samlAuthenticationToken;
+        private final Authentication openidAuthenticationToken;
+
+        public IdpSamlCredentialsHolder(Authentication samlAuthenticationToken, Authentication openidAuthenticationToken) {
+            this.samlAuthenticationToken = samlAuthenticationToken;
+            this.openidAuthenticationToken = openidAuthenticationToken;
+        }
+
+        public Authentication getSamlAuthenticationToken() {
+            return samlAuthenticationToken;
+        }
+
+        public Authentication getOpenidAuthenticationToken() {
+            return openidAuthenticationToken;
+        }
     }
 }

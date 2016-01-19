@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.websso.WebSSOProfileOptions;
 
-public interface IdpWebSSOProfile {
+public interface IdpWebSsoProfile {
 
     void sendResponse(Authentication authentication, SAMLMessageContext context, WebSSOProfileOptions options)
             throws SAMLException, MetadataProviderException, MessageEncodingException;

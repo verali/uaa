@@ -31,8 +31,9 @@ import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.websso.WebSSOProfileImpl;
 import org.springframework.security.saml.websso.WebSSOProfileOptions;
 
-public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSOProfile {
+public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSsoProfile {
 
+    @SuppressWarnings("unchecked")
     @Override
     public void sendResponse(Authentication authentication, SAMLMessageContext context, WebSSOProfileOptions options)
             throws SAMLException, MetadataProviderException, MessageEncodingException{
@@ -55,7 +56,7 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private Response createResponse(SAMLMessageContext context, AssertionConsumerService assertionConsumerService, Assertion assertion) {
-
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Response> responseBuilder = (SAMLObjectBuilder<Response>) builderFactory.getBuilder(Response.DEFAULT_ELEMENT_NAME);
         Response response = responseBuilder.buildObject();
 
@@ -80,6 +81,7 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private Assertion buildAssertion(AuthnRequest authnRequest, String audienceURI, String issuerEntityId, String nameIdStr) {
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Assertion> assertionBuilder = (SAMLObjectBuilder<Assertion>) builderFactory.getBuilder(Assertion.DEFAULT_ELEMENT_NAME);
         Assertion assertion = assertionBuilder.buildObject();
         assertion.setID(generateID());
@@ -95,14 +97,17 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private void buildAssertionAuthnStatement(Assertion assertion) {
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<AuthnStatement> authnStatementBuilder = (SAMLObjectBuilder<AuthnStatement>) builderFactory.getBuilder(AuthnStatement.DEFAULT_ELEMENT_NAME);
         AuthnStatement authnStatement = authnStatementBuilder.buildObject();
         authnStatement.setAuthnInstant(new DateTime());
         authnStatement.setSessionIndex(generateID());
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<AuthnContext> authnContextBuilder = (SAMLObjectBuilder<AuthnContext>) builderFactory.getBuilder(AuthnContext.DEFAULT_ELEMENT_NAME);
         AuthnContext authnContext = authnContextBuilder.buildObject();
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<AuthnContextClassRef> authnContextClassRefBuilder = (SAMLObjectBuilder<AuthnContextClassRef>) builderFactory.getBuilder(AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
         AuthnContextClassRef authnContextClassRef = authnContextClassRefBuilder.buildObject();
         authnContextClassRef.setAuthnContextClassRef(AuthnContext.PASSWORD_AUTHN_CTX);
@@ -112,15 +117,18 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private void buildAssertionConditions(Assertion assertion, String audienceURI) {
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Conditions> conditionsBuilder = (SAMLObjectBuilder<Conditions>) builderFactory.getBuilder(Conditions.DEFAULT_ELEMENT_NAME);
         Conditions conditions = conditionsBuilder.buildObject();
         conditions.setNotBefore(new DateTime());
         // TODO: Make the assertion TTL configurable.
         conditions.setNotOnOrAfter(new DateTime().plusMinutes(5));
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<AudienceRestriction> audienceRestrictionBuilder = (SAMLObjectBuilder<AudienceRestriction>) builderFactory.getBuilder(AudienceRestriction.DEFAULT_ELEMENT_NAME);
         AudienceRestriction audienceRestriction = audienceRestrictionBuilder.buildObject();
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Audience> audienceBuilder = (SAMLObjectBuilder<Audience>) builderFactory.getBuilder(Audience.DEFAULT_ELEMENT_NAME);
         Audience audience = audienceBuilder.buildObject();
         audience.setAudienceURI(audienceURI);
@@ -130,19 +138,23 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private void buildAssertionSubject(Assertion assertion, AuthnRequest authnRequest, String nameIdStr) {
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Subject> subjectBuilder = (SAMLObjectBuilder<Subject>) builderFactory.getBuilder(Subject.DEFAULT_ELEMENT_NAME);
         Subject subject = subjectBuilder.buildObject();
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<NameID> nameIdBuilder = (SAMLObjectBuilder<NameID>) builderFactory.getBuilder(NameID.DEFAULT_ELEMENT_NAME);
         NameID nameId = nameIdBuilder.buildObject();
         nameId.setValue(nameIdStr);
         nameId.setFormat(NameIDType.UNSPECIFIED);
         subject.setNameID(nameId);
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<SubjectConfirmation> subjectConfirmationBuilder = (SAMLObjectBuilder<SubjectConfirmation>) builderFactory.getBuilder(SubjectConfirmation.DEFAULT_ELEMENT_NAME);
         SubjectConfirmation subjectConfirmation = subjectConfirmationBuilder.buildObject();
         subjectConfirmation.setMethod(SubjectConfirmation.METHOD_BEARER);
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<SubjectConfirmationData> subjectConfirmationDataBuilder = (SAMLObjectBuilder<SubjectConfirmationData>) builderFactory.getBuilder(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
         SubjectConfirmationData subjectConfirmationData = subjectConfirmationDataBuilder.buildObject();
 
@@ -165,10 +177,12 @@ public class IdpWebSSOProfileImpl extends WebSSOProfileImpl implements IdpWebSSO
     }
 
     private void buildStatus(Response response, String statusCodeStr) {
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<StatusCode> statusCodeBuilder = (SAMLObjectBuilder<StatusCode>) builderFactory.getBuilder(StatusCode.DEFAULT_ELEMENT_NAME);
         StatusCode statusCode = statusCodeBuilder.buildObject();
         statusCode.setValue(statusCodeStr);
 
+        @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Status> statusBuilder = (SAMLObjectBuilder<Status>) builderFactory.getBuilder(Status.DEFAULT_ELEMENT_NAME);
         Status status = statusBuilder.buildObject();
         status.setStatusCode(statusCode);

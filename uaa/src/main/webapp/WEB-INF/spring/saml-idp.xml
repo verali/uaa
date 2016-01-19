@@ -17,7 +17,7 @@
         <security:filter-chain-map
             request-matcher="ant">
             <security:filter-chain pattern="/saml/idp/SSO/**"
-                filters="samlSecurityContextPersistenceFilter,samlIdpWebSSOProcessingFilter" />
+                filters="samlSecurityContextPersistenceFilter,samlIdpWebSsoProcessingFilter" />
         </security:filter-chain-map>
     </bean>
 
@@ -27,10 +27,10 @@
     </security:authentication-manager>
 
     <bean id="samlIdpAuthenticationProvider"
-        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationProvider" />
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlAuthenticationProvider" />
 
-    <!-- SAML IdP processing filter for WebSSO profile messages. -->
-    <bean id="samlIdpWebSSOProcessingFilter"
+    <!-- SAML IdP processing filter for Web SSO profile messages. -->
+    <bean id="samlIdpWebSsoProcessingFilter"
         class="org.springframework.security.saml.SAMLProcessingFilter">
         <constructor-arg value="/saml/idp/SSO" />
         <property name="authenticationManager" ref="samlIdpAuthenticationManager" />
@@ -40,17 +40,17 @@
     </bean>
 
     <bean id="samlIdpSuccessHandler"
-        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLAuthenticationSuccessHandler">
-        <property name="idpWebSSOProfile" ref="idpWebSSOProfileImpl" />
-        <property name="metadata" ref="metadata" />
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlAuthenticationSuccessHandler">
+        <property name="idpWebSsoProfile" ref="idpWebSsoProfileImpl" />
+        <property name="metadataManager" ref="metadata" />
     </bean>
 
-    <bean id="idpWebSSOProfileImpl"
-        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpWebSSOProfileImpl">
+    <bean id="idpWebSsoProfileImpl"
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpWebSsoProfileImpl">
     </bean>
 
     <bean id="idpContextProvider"
-        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSAMLContextProviderImpl" />
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlContextProviderImpl" />
 
     <!-- Filter automatically generates default IdP metadata -->
     <bean id="idpMetadataGeneratorFilter"
@@ -67,7 +67,7 @@
         <property name="entityBaseURL"
             value="${login.entityBaseURL:http://localhost:8080/uaa}" />
         <property name="entityId" ref="samlIdpEntityID" />
-        <property name="samlWebSSOFilter" ref="samlIdpWebSSOProcessingFilter" />
+        <property name="samlWebSSOFilter" ref="samlIdpWebSsoProcessingFilter" />
     </bean>
 
     <bean id="idpExtendedMetaData"

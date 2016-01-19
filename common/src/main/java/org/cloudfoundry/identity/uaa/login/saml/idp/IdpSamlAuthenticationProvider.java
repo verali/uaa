@@ -1,5 +1,6 @@
 package org.cloudfoundry.identity.uaa.login.saml.idp;
 
+import org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlAuthentication.IdpSamlCredentialsHolder;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -7,7 +8,12 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.saml.SAMLAuthenticationToken;
 
-public class IdpSAMLAuthenticationProvider implements AuthenticationProvider {
+/**
+ * This authentication provider produces a composite authentication object that contains the SamlAuthenticationToken,
+ * which contains the SAML context, and the OpenIdAuthenticationToken, which contains information about the
+ * authenticated user.
+ */
+public class IdpSamlAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {

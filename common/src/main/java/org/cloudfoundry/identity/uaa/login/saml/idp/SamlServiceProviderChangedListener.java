@@ -44,13 +44,13 @@ public class SamlServiceProviderChangedListener implements ApplicationListener<S
         if (metadataManager == null) {
             return;
         }
-        SamlServiceProvider provider = (SamlServiceProvider) event.getSource();
-        IdentityZone zone = zoneProvisioning.retrieve(provider.getIdentityZoneId());
+        SamlServiceProvider changedSamlServiceProvider = (SamlServiceProvider) event.getSource();
+        IdentityZone zone = zoneProvisioning.retrieve(changedSamlServiceProvider.getIdentityZoneId());
         ZoneAwareMetadataManager.ExtensionMetadataManager manager = metadataManager.getManager(zone);
-        SamlServiceProviderDefinition definition = ObjectUtils.castInstance(provider.getConfig(),
+        SamlServiceProviderDefinition definition = ObjectUtils.castInstance(changedSamlServiceProvider.getConfig(),
                 SamlServiceProviderDefinition.class);
         try {
-            if (provider.isActive()) {
+            if (changedSamlServiceProvider.isActive()) {
                 ExtendedMetadataDelegate[] delegates = configurator.addSamlServiceProviderDefinition(definition);
                 if (delegates[1] != null) {
                     manager.removeMetadataProvider(delegates[1]);
@@ -62,13 +62,13 @@ public class SamlServiceProviderChangedListener implements ApplicationListener<S
                     manager.removeMetadataProvider(delegate);
                 }
             }
-            for (MetadataProvider idp : manager.getProviders()) {
-                idp.getMetadata();
+            for (MetadataProvider provider : manager.getProviders()) {
+                provider.getMetadata();
             }
             manager.refreshMetadata();
             metadataManager.getManager(zone).refreshMetadata();
         } catch (MetadataProviderException e) {
-            logger.error("Unable to add new IDP provider:" + definition, e);
+            logger.error("Unable to add new SAML service provider:" + definition, e);
         }
     }
 

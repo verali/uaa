@@ -8,7 +8,7 @@ import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.springframework.security.saml.context.SAMLContextProviderImpl;
 import org.springframework.security.saml.context.SAMLMessageContext;
 
-public class IdpSAMLContextProviderImpl extends SAMLContextProviderImpl {
+public class IdpSamlContextProviderImpl extends SAMLContextProviderImpl {
 
     @Override
     public SAMLMessageContext getLocalEntity(HttpServletRequest request, HttpServletResponse response) throws MetadataProviderException {
