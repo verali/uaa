@@ -25,6 +25,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.cloudfoundry.identity.uaa.ServerRunning;
 import org.cloudfoundry.identity.uaa.authentication.Origin;
+import org.cloudfoundry.identity.uaa.config.IdentityZoneConfiguration;
+import org.cloudfoundry.identity.uaa.config.SamlConfig;
 import org.cloudfoundry.identity.uaa.integration.util.IntegrationTestUtils;
 import org.cloudfoundry.identity.uaa.login.saml.SamlIdentityProviderDefinition;
 import org.cloudfoundry.identity.uaa.login.saml.idp.SamlServiceProvider;
@@ -455,7 +457,7 @@ public class SamlLoginWithLocalIdpIT {
                 .getClientCredentialsTemplate(IntegrationTestUtils.getClientCredentialsResource(baseUrl,
                         new String[] { "zones.write", "zones.read", "scim.zones" }, "identity", "identitysecret"));
 
-        IdentityZone idpZone = IntegrationTestUtils.createZoneOrUpdateSubdomain(identityClient, baseUrl, idpZoneId, idpZoneId);
+        IntegrationTestUtils.createZoneOrUpdateSubdomain(identityClient, baseUrl, idpZoneId, idpZoneId);
         String idpZoneAdminEmail = new RandomValueStringGenerator().generate() + "@samltesting.org";
         ScimUser idpZoneAdminUser = IntegrationTestUtils.createUser(adminClient, baseUrl, idpZoneAdminEmail, "firstname", "lastname", idpZoneAdminEmail,
                 true);
@@ -467,7 +469,11 @@ public class SamlLoginWithLocalIdpIT {
         String idpZoneUrl = baseUrl.replace("localhost", idpZoneId + ".localhost");
         createZoneUser(idpZoneId, idpZoneAdminToken, idpZoneUserEmail, idpZoneUrl);
 
-        IdentityZone spZone = IntegrationTestUtils.createZoneOrUpdateSubdomain(identityClient, baseUrl, spZoneId, spZoneId);
+        SamlConfig samlConfig = new SamlConfig();
+        samlConfig.setWantAssertionSigned(true);
+        IdentityZoneConfiguration config = new IdentityZoneConfiguration();
+        config.setSamlConfig(samlConfig);
+        IdentityZone spZone = IntegrationTestUtils.createZoneOrUpdateSubdomain(identityClient, baseUrl, spZoneId, spZoneId, config );
         String spZoneAdminEmail = new RandomValueStringGenerator().generate() + "@samltesting.org";
         ScimUser spZoneAdminUser = IntegrationTestUtils.createUser(adminClient, baseUrl, spZoneAdminEmail, "firstname", "lastname", spZoneAdminEmail,
                 true);

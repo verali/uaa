@@ -20,6 +20,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.cloudfoundry.identity.uaa.ServerRunning;
 import org.cloudfoundry.identity.uaa.authentication.Origin;
+import org.cloudfoundry.identity.uaa.config.IdentityZoneConfiguration;
 import org.cloudfoundry.identity.uaa.login.saml.SamlIdentityProviderDefinition;
 import org.cloudfoundry.identity.uaa.rest.SearchResults;
 import org.cloudfoundry.identity.uaa.scim.ScimGroup;
@@ -418,14 +419,23 @@ public class IntegrationTestUtils {
                                                            String id,
                                                            String subdomain) {
 
+        return createZoneOrUpdateSubdomain(client, url, id, subdomain, null);
+    }
+
+    public static IdentityZone createZoneOrUpdateSubdomain(RestTemplate client,
+            String url,
+            String id,
+            String subdomain,
+            IdentityZoneConfiguration config) {
+
         ResponseEntity<String> zoneGet = client.getForEntity(url + "/identity-zones/{id}", String.class, id);
         if (zoneGet.getStatusCode()==HttpStatus.OK) {
-            IdentityZone existing = JsonUtils.readValue(zoneGet.getBody(), IdentityZone.class);
-            existing.setSubdomain(subdomain);
-            client.put(url + "/identity-zones/{id}", existing, id);
-            return existing;
+        IdentityZone existing = JsonUtils.readValue(zoneGet.getBody(), IdentityZone.class);
+        existing.setSubdomain(subdomain);
+        client.put(url + "/identity-zones/{id}", existing, id);
+        return existing;
         }
-        IdentityZone identityZone = fixtureIdentityZone(id, subdomain);
+        IdentityZone identityZone = fixtureIdentityZone(id, subdomain, config);
 
         ResponseEntity<IdentityZone> zone = client.postForEntity(url + "/identity-zones", identityZone, IdentityZone.class);
         return zone.getBody();
@@ -719,11 +729,17 @@ public class IntegrationTestUtils {
     }
 
     public static IdentityZone fixtureIdentityZone(String id, String subdomain) {
+
+        return fixtureIdentityZone(id, subdomain, null);
+    }
+
+    public static IdentityZone fixtureIdentityZone(String id, String subdomain, IdentityZoneConfiguration config) {
         IdentityZone identityZone = new IdentityZone();
         identityZone.setId(id);
         identityZone.setSubdomain(subdomain);
         identityZone.setName("The Twiglet Zone[" + id + "]");
         identityZone.setDescription("Like the Twilight Zone but tastier[" + id + "].");
+        identityZone.setConfig(config);
         return identityZone;
     }
 

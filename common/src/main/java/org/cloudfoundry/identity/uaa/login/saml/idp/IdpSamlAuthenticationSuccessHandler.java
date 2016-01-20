@@ -14,6 +14,11 @@ import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.RoleDescriptor;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
+import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.security.SecurityException;
+import org.opensaml.xml.signature.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -26,6 +31,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.util.Assert;
 
 public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdpSamlAuthenticationSuccessHandler.class);
 
     private IdpWebSsoProfile idpWebSsoProfile;
     private MetadataManager metadataManager;
@@ -40,29 +47,29 @@ public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSucces
 
         IdpSamlCredentialsHolder credentials = (IdpSamlCredentialsHolder) authentication.getCredentials();
         SAMLAuthenticationToken token = (SAMLAuthenticationToken) credentials.getSamlAuthenticationToken();
-        Authentication openIdAuthentication = credentials.getOpenidAuthenticationToken();
-
         SAMLMessageContext context = token.getCredentials();
+
         try {
             populatePeerContext(context);
         } catch (MetadataProviderException e) {
             throw new ServletException("Failed to populate peer SAML context.", e);
         }
 
-        // TODO: Review error handler of success handler for SAML processing filter.
         try {
             WebSSOProfileOptions options = new WebSSOProfileOptions();
-            // TODO: Just pass the entire IdpSamlAuthentication instead.
-            idpWebSsoProfile.sendResponse(openIdAuthentication, context, options);
+            idpWebSsoProfile.sendResponse(authentication, context, options);
         } catch (SAMLException e) {
-            //logger.debug("Incoming SAML message is invalid", e);
+            LOGGER.debug("Incoming SAML message is invalid.", e);
             throw new AuthenticationServiceException("Incoming SAML message is invalid.", e);
         } catch (MetadataProviderException e) {
-            //logger.debug("Error determining metadata contracts", e);
+            LOGGER.debug("Error determining metadata contracts.", e);
             throw new AuthenticationServiceException("Error determining metadata contracts.", e);
         } catch (MessageEncodingException e) {
-            //logger.debug("Error decoding incoming SAML message", e);
+            LOGGER.debug("Error decoding incoming SAML message.", e);
             throw new AuthenticationServiceException("Error encoding outgoing SAML message.", e);
+        } catch (MarshallingException | SecurityException | SignatureException e) {
+            LOGGER.debug("Error signing SAML assertion.", e);
+            throw new AuthenticationServiceException("Error signing SAML assertion.", e);
         }
     }
 
