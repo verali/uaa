@@ -26,7 +26,6 @@ import org.springframework.security.saml.SAMLAuthenticationToken;
 import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
 import org.springframework.security.saml.metadata.MetadataManager;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.util.Assert;
 
@@ -49,6 +48,13 @@ public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSucces
         SAMLAuthenticationToken token = (SAMLAuthenticationToken) credentials.getSamlAuthenticationToken();
         SAMLMessageContext context = token.getCredentials();
 
+        IdpExtendedMetadata extendedMetadata = null;
+        try {
+            extendedMetadata = (IdpExtendedMetadata) metadataManager.getExtendedMetadata(context.getLocalEntityId());
+        } catch (MetadataProviderException e) {
+            throw new ServletException("Failed to obtain local SAML IdP extended metadata.", e);
+        }
+
         try {
             populatePeerContext(context);
         } catch (MetadataProviderException e) {
@@ -56,7 +62,9 @@ public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSucces
         }
 
         try {
-            WebSSOProfileOptions options = new WebSSOProfileOptions();
+            IdpWebSSOProfileOptions options = new IdpWebSSOProfileOptions();
+            options.setAssertionsSigned(extendedMetadata.isAssertionsSigned());
+            options.setAssertionTimeToLiveSeconds(extendedMetadata.getAssertionTimeToLiveSeconds());
             idpWebSsoProfile.sendResponse(authentication, context, options);
         } catch (SAMLException e) {
             LOGGER.debug("Incoming SAML message is invalid.", e);
@@ -87,7 +95,8 @@ public class IdpSamlAuthenticationSuccessHandler implements AuthenticationSucces
         ExtendedMetadata extendedMetadata = metadataManager.getExtendedMetadata(peerEntityId);
 
         if (entityDescriptor == null || roleDescriptor == null) {
-            throw new MetadataProviderException("Metadata for entity " + peerEntityId + " and role " + peerEntityRole + " wasn't found");
+            throw new MetadataProviderException(
+                    "Metadata for entity " + peerEntityId + " and role " + peerEntityRole + " wasn't found");
         }
 
         samlContext.setPeerEntityMetadata(entityDescriptor);

@@ -8,11 +8,10 @@ import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.signature.SignatureException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml.context.SAMLMessageContext;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
 
 public interface IdpWebSsoProfile {
 
-    void sendResponse(Authentication authentication, SAMLMessageContext context, WebSSOProfileOptions options)
+    void sendResponse(Authentication authentication, SAMLMessageContext context, IdpWebSSOProfileOptions options)
             throws SAMLException, MetadataProviderException, MessageEncodingException, SecurityException,
             MarshallingException, SignatureException;
 }

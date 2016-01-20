@@ -66,7 +66,7 @@ public class IdpMetadataGenerator {
     /**
      * Extended metadata with details on metadata generation.
      */
-    private ExtendedMetadata extendedMetadata;
+    private IdpExtendedMetadata extendedMetadata;
 
     // List of case-insensitive alias terms
     private static TreeMap<String, String> aliases = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
@@ -189,7 +189,6 @@ public class IdpMetadataGenerator {
         }
 
         return descriptor;
-
     }
 
     protected void validateRequiredAttributes(String entityId, String entityBaseURL) {
@@ -216,14 +215,14 @@ public class IdpMetadataGenerator {
      *
      * @return generated extended metadata
      */
-    public ExtendedMetadata generateExtendedMetadata() {
+    public IdpExtendedMetadata generateExtendedMetadata() {
 
-        ExtendedMetadata metadata;
+        IdpExtendedMetadata metadata;
 
         if (extendedMetadata != null) {
             metadata = extendedMetadata.clone();
         } else {
-            metadata = new ExtendedMetadata();
+            metadata = new IdpExtendedMetadata();
         }
 
         String entityBaseURL = getEntityBaseURL();
@@ -238,7 +237,8 @@ public class IdpMetadataGenerator {
         }
 
         metadata.setLocal(true);
-
+        metadata.setAssertionTimeToLiveSeconds(getAssertionTimeToLiveSeconds());
+        metadata.setAssertionsSigned(isAssertionsSigned());
         return metadata;
 
     }
@@ -849,6 +849,22 @@ public class IdpMetadataGenerator {
         }
     }
 
+    public boolean isAssertionsSigned() {
+        if (extendedMetadata != null) {
+            return extendedMetadata.isAssertionsSigned();
+        } else {
+            return true;
+        }
+    }
+
+    public int getAssertionTimeToLiveSeconds() {
+        if (extendedMetadata != null) {
+            return extendedMetadata.getAssertionTimeToLiveSeconds();
+        } else {
+            return 600;
+        }
+    }
+
     /**
      * Extended metadata which contains details on configuration of the generated service provider metadata.
      *
@@ -865,8 +881,7 @@ public class IdpMetadataGenerator {
      * @param extendedMetadata
      *            default extended metadata or null
      */
-    public void setExtendedMetadata(ExtendedMetadata extendedMetadata) {
+    public void setExtendedMetadata(IdpExtendedMetadata extendedMetadata) {
         this.extendedMetadata = extendedMetadata;
     }
-
 }

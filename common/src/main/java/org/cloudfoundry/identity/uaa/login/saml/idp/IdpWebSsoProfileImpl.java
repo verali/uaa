@@ -51,18 +51,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.websso.WebSSOProfileImpl;
-import org.springframework.security.saml.websso.WebSSOProfileOptions;
 
 public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSsoProfile {
 
     @SuppressWarnings("unchecked")
     @Override
-    public void sendResponse(Authentication authentication, SAMLMessageContext context, WebSSOProfileOptions options)
+    public void sendResponse(Authentication authentication, SAMLMessageContext context, IdpWebSSOProfileOptions options)
             throws SAMLException, MetadataProviderException, MessageEncodingException, SecurityException,
             MarshallingException, SignatureException {
 
         IdpSamlCredentialsHolder credentials = (IdpSamlCredentialsHolder) authentication.getCredentials();
-        Authentication loginAuthentication = credentials.getOpenidAuthenticationToken();
+        Authentication loginAuthentication = credentials.getLoginAuthenticationToken();
 
         IDPSSODescriptor idpDescriptor = (IDPSSODescriptor) context.getLocalEntityRoleMetadata();
         SPSSODescriptor spDescriptor = (SPSSODescriptor) context.getPeerEntityRoleMetadata();
@@ -73,9 +72,9 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
 
         context.setPeerEntityEndpoint(assertionConsumerService);
 
-        Assertion assertion = buildAssertion(authnRequest, context.getPeerEntityId(), context.getLocalEntityId(),
-                loginAuthentication);
-        if (spDescriptor.getWantAssertionsSigned()) {
+        Assertion assertion = buildAssertion(loginAuthentication, authnRequest, options, context.getPeerEntityId(),
+                context.getLocalEntityId());
+        if (options.isAssertionsSigned() || spDescriptor.getWantAssertionsSigned()) {
             signAssertion(assertion, context.getLocalSigningCredential());
         }
         Response samlResponse = createResponse(context, assertionConsumerService, assertion);
@@ -112,8 +111,8 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         }
     }
 
-    private Assertion buildAssertion(AuthnRequest authnRequest, String audienceURI, String issuerEntityId,
-            Authentication authentication) {
+    private Assertion buildAssertion(Authentication authentication, AuthnRequest authnRequest,
+            IdpWebSSOProfileOptions options, String audienceURI, String issuerEntityId) {
         @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Assertion> assertionBuilder = (SAMLObjectBuilder<Assertion>) builderFactory
                 .getBuilder(Assertion.DEFAULT_ELEMENT_NAME);
@@ -124,8 +123,9 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         assertion.setIssuer(getIssuer(issuerEntityId));
 
         buildAssertionAuthnStatement(assertion);
-        buildAssertionConditions(assertion, audienceURI);
-        buildAssertionSubject(assertion, authnRequest, authentication.getName());
+        buildAssertionConditions(assertion, options.getAssertionTimeToLiveSeconds(), audienceURI);
+        buildAssertionSubject(assertion, authnRequest, options.getAssertionTimeToLiveSeconds(),
+                authentication.getName());
         buildAttributeStatement(assertion, authentication);
 
         return assertion;
@@ -154,14 +154,13 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         assertion.getAuthnStatements().add(authnStatement);
     }
 
-    private void buildAssertionConditions(Assertion assertion, String audienceURI) {
+    private void buildAssertionConditions(Assertion assertion, int assertionTtlSeconds, String audienceURI) {
         @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Conditions> conditionsBuilder = (SAMLObjectBuilder<Conditions>) builderFactory
                 .getBuilder(Conditions.DEFAULT_ELEMENT_NAME);
         Conditions conditions = conditionsBuilder.buildObject();
         conditions.setNotBefore(new DateTime());
-        // TODO: Make the assertion TTL configurable.
-        conditions.setNotOnOrAfter(new DateTime().plusMinutes(5));
+        conditions.setNotOnOrAfter(new DateTime().plusSeconds(assertionTtlSeconds));
 
         @SuppressWarnings("unchecked")
         SAMLObjectBuilder<AudienceRestriction> audienceRestrictionBuilder = (SAMLObjectBuilder<AudienceRestriction>) builderFactory
@@ -178,7 +177,8 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         assertion.setConditions(conditions);
     }
 
-    private void buildAssertionSubject(Assertion assertion, AuthnRequest authnRequest, String nameIdStr) {
+    private void buildAssertionSubject(Assertion assertion, AuthnRequest authnRequest, int assertionTtlSeconds,
+            String nameIdStr) {
         @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Subject> subjectBuilder = (SAMLObjectBuilder<Subject>) builderFactory
                 .getBuilder(Subject.DEFAULT_ELEMENT_NAME);
@@ -203,16 +203,10 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
                 .getBuilder(SubjectConfirmationData.DEFAULT_ELEMENT_NAME);
         SubjectConfirmationData subjectConfirmationData = subjectConfirmationDataBuilder.buildObject();
 
-        // TODO: Make this configurable.
-        subjectConfirmationData.setNotOnOrAfter(new DateTime().plusMinutes(5));
+        subjectConfirmationData.setNotOnOrAfter(new DateTime().plusSeconds(assertionTtlSeconds));
         subjectConfirmationData.setInResponseTo(authnRequest.getID());
         subjectConfirmationData.setRecipient(authnRequest.getAssertionConsumerServiceURL());
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
-        // TODO: Add subject confirmation data. Should look like this:
-        // <saml:SubjectConfirmationData NotOnOrAfter="2016-01-07T18:36:33Z"
-        // Recipient="http://localhost:8080/uaa/saml/SSO/alias/cloudfoundry-saml-login"
-        // InResponseTo="aad2f88932ji24c3fi86gga85f1173"
-        // />
         subject.getSubjectConfirmations().add(subjectConfirmation);
         assertion.setSubject(subject);
     }
@@ -300,4 +294,5 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
 
         Signer.signObject(signature);
     }
+
 }

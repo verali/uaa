@@ -71,11 +71,12 @@
     </bean>
 
     <bean id="idpExtendedMetaData"
-        class="org.springframework.security.saml.metadata.ExtendedMetadata">
-        <!-- <property name="idpDiscoveryEnabled" value="true" /> -->
+        class="org.cloudfoundry.identity.uaa.login.saml.idp.IdpExtendedMetadata">
         <property name="alias"
             value="#{T(org.cloudfoundry.identity.uaa.util.UaaStringUtils).getHostIfArgIsURL(@samlIdpAlias)}" />
         <property name="signMetadata" value="${login.saml.signMetaData:true}" />
+        <property name="assertionsSigned" value="${login.saml.idp.assertionSigned:true}" />
+        <property name="assertionTimeToLiveSeconds" value="${login.saml.idp.assertionTimeToLiveSeconds:600}" />
     </bean>
 
     <bean id="samlIdpAlias" class="java.lang.String">

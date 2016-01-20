@@ -29,12 +29,12 @@ public class IdpSamlAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        return credentials.getOpenidAuthenticationToken().getName();
+        return credentials.getLoginAuthenticationToken().getName();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return credentials.getOpenidAuthenticationToken().getAuthorities();
+        return credentials.getLoginAuthenticationToken().getAuthorities();
     }
 
     @Override
@@ -44,17 +44,17 @@ public class IdpSamlAuthentication implements Authentication {
 
     @Override
     public Object getDetails() {
-        return credentials.getOpenidAuthenticationToken().getDetails();
+        return credentials.getLoginAuthenticationToken().getDetails();
     }
 
     @Override
     public Object getPrincipal() {
-        return credentials.getOpenidAuthenticationToken().getPrincipal();
+        return credentials.getLoginAuthenticationToken().getPrincipal();
     }
 
     @Override
     public boolean isAuthenticated() {
-        return credentials.getOpenidAuthenticationToken().isAuthenticated();
+        return credentials.getLoginAuthenticationToken().isAuthenticated();
     }
 
     @Override
@@ -65,19 +65,19 @@ public class IdpSamlAuthentication implements Authentication {
     public static class IdpSamlCredentialsHolder {
 
         private final Authentication samlAuthenticationToken;
-        private final Authentication openidAuthenticationToken;
+        private final Authentication loginAuthenticationToken;
 
-        public IdpSamlCredentialsHolder(Authentication samlAuthenticationToken, Authentication openidAuthenticationToken) {
+        public IdpSamlCredentialsHolder(Authentication samlAuthenticationToken, Authentication loginAuthenticationToken) {
             this.samlAuthenticationToken = samlAuthenticationToken;
-            this.openidAuthenticationToken = openidAuthenticationToken;
+            this.loginAuthenticationToken = loginAuthenticationToken;
         }
 
         public Authentication getSamlAuthenticationToken() {
             return samlAuthenticationToken;
         }
 
-        public Authentication getOpenidAuthenticationToken() {
-            return openidAuthenticationToken;
+        public Authentication getLoginAuthenticationToken() {
+            return loginAuthenticationToken;
         }
     }
 }
