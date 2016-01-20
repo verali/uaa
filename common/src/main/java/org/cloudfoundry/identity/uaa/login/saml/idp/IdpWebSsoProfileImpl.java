@@ -1,5 +1,10 @@
 package org.cloudfoundry.identity.uaa.login.saml.idp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.cloudfoundry.identity.uaa.authentication.UaaPrincipal;
 import org.cloudfoundry.identity.uaa.login.saml.idp.IdpSamlAuthentication.IdpSamlCredentialsHolder;
 import org.joda.time.DateTime;
 import org.opensaml.Configuration;
@@ -7,6 +12,9 @@ import org.opensaml.common.SAMLException;
 import org.opensaml.common.SAMLObjectBuilder;
 import org.opensaml.common.SAMLVersion;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
+import org.opensaml.saml2.core.AttributeValue;
 import org.opensaml.saml2.core.Audience;
 import org.opensaml.saml2.core.AudienceRestriction;
 import org.opensaml.saml2.core.AuthnContext;
@@ -28,17 +36,19 @@ import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
 import org.opensaml.ws.message.encoder.MessageEncodingException;
+import org.opensaml.xml.XMLObjectBuilder;
 import org.opensaml.xml.io.Marshaller;
 import org.opensaml.xml.io.MarshallingException;
+import org.opensaml.xml.schema.XSString;
 import org.opensaml.xml.security.SecurityException;
 import org.opensaml.xml.security.SecurityHelper;
 import org.opensaml.xml.security.credential.Credential;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureException;
 import org.opensaml.xml.signature.Signer;
-import org.opensaml.xml.signature.XMLSignatureBuilder;
 import org.opensaml.xml.signature.impl.SignatureBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml.context.SAMLMessageContext;
 import org.springframework.security.saml.websso.WebSSOProfileImpl;
 import org.springframework.security.saml.websso.WebSSOProfileOptions;
@@ -52,7 +62,7 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
             MarshallingException, SignatureException {
 
         IdpSamlCredentialsHolder credentials = (IdpSamlCredentialsHolder) authentication.getCredentials();
-        Authentication openIdAuthentication = credentials.getOpenidAuthenticationToken();
+        Authentication loginAuthentication = credentials.getOpenidAuthenticationToken();
 
         IDPSSODescriptor idpDescriptor = (IDPSSODescriptor) context.getLocalEntityRoleMetadata();
         SPSSODescriptor spDescriptor = (SPSSODescriptor) context.getPeerEntityRoleMetadata();
@@ -64,7 +74,7 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         context.setPeerEntityEndpoint(assertionConsumerService);
 
         Assertion assertion = buildAssertion(authnRequest, context.getPeerEntityId(), context.getLocalEntityId(),
-                openIdAuthentication.getName());
+                loginAuthentication);
         if (spDescriptor.getWantAssertionsSigned()) {
             signAssertion(assertion, context.getLocalSigningCredential());
         }
@@ -103,7 +113,7 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
     }
 
     private Assertion buildAssertion(AuthnRequest authnRequest, String audienceURI, String issuerEntityId,
-            String nameIdStr) {
+            Authentication authentication) {
         @SuppressWarnings("unchecked")
         SAMLObjectBuilder<Assertion> assertionBuilder = (SAMLObjectBuilder<Assertion>) builderFactory
                 .getBuilder(Assertion.DEFAULT_ELEMENT_NAME);
@@ -115,7 +125,8 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
 
         buildAssertionAuthnStatement(assertion);
         buildAssertionConditions(assertion, audienceURI);
-        buildAssertionSubject(assertion, authnRequest, nameIdStr);
+        buildAssertionSubject(assertion, authnRequest, authentication.getName());
+        buildAttributeStatement(assertion, authentication);
 
         return assertion;
     }
@@ -204,6 +215,55 @@ public class IdpWebSsoProfileImpl extends WebSSOProfileImpl implements IdpWebSso
         // />
         subject.getSubjectConfirmations().add(subjectConfirmation);
         assertion.setSubject(subject);
+    }
+
+    private void buildAttributeStatement(Assertion assertion, Authentication authentication) {
+        @SuppressWarnings("unchecked")
+        SAMLObjectBuilder<AttributeStatement> attributeStatementBuilder = (SAMLObjectBuilder<AttributeStatement>) builderFactory
+                .getBuilder(AttributeStatement.DEFAULT_ELEMENT_NAME);
+        AttributeStatement attributeStatement = attributeStatementBuilder.buildObject();
+
+        List<String> authorities = new ArrayList<>();
+        for (GrantedAuthority authority : authentication.getAuthorities()) {
+            authorities.add(authority.getAuthority());
+        }
+        Attribute authoritiesAttribute = buildStringAttribute("authorities", authorities);
+        attributeStatement.getAttributes().add(authoritiesAttribute);
+
+        UaaPrincipal principal = (UaaPrincipal) authentication.getPrincipal();
+        Attribute emailAttribute = buildStringAttribute("email", Arrays.asList(new String[] { principal.getEmail() }));
+        attributeStatement.getAttributes().add(emailAttribute);
+        Attribute idAttribute = buildStringAttribute("email", Arrays.asList(new String[] { principal.getId() }));
+        attributeStatement.getAttributes().add(idAttribute);
+        Attribute nameAttribute = buildStringAttribute("name", Arrays.asList(new String[] { principal.getName() }));
+        attributeStatement.getAttributes().add(nameAttribute);
+        Attribute originAttribute = buildStringAttribute("name", Arrays.asList(new String[] { principal.getOrigin() }));
+        attributeStatement.getAttributes().add(originAttribute);
+        Attribute zoneAttribute = buildStringAttribute("name", Arrays.asList(new String[] { principal.getZoneId() }));
+        attributeStatement.getAttributes().add(zoneAttribute);
+
+        assertion.getAttributeStatements().add(attributeStatement);
+    }
+
+    public Attribute buildStringAttribute(String name, List<String> values) {
+        @SuppressWarnings("unchecked")
+        SAMLObjectBuilder<Attribute> attributeBuilder = (SAMLObjectBuilder<Attribute>) builderFactory
+                .getBuilder(Attribute.DEFAULT_ELEMENT_NAME);
+        Attribute attribute = (Attribute) attributeBuilder.buildObject();
+        attribute.setName(name);
+
+        @SuppressWarnings("unchecked")
+        XMLObjectBuilder<XSString> xsStringBuilder = (XMLObjectBuilder<XSString>) builderFactory
+                .getBuilder(XSString.TYPE_NAME);
+        for (String value : values) {
+            // Set custom Attributes
+            XSString attributeValue = xsStringBuilder.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME,
+                    XSString.TYPE_NAME);
+            attributeValue.setValue(value);
+            attribute.getAttributeValues().add(attributeValue);
+        }
+
+        return attribute;
     }
 
     private void buildStatusSuccess(Response response) {
