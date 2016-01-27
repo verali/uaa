@@ -148,6 +148,7 @@ public class InvitationsIT {
     }
 
     @Test
+    @Ignore
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
         String email = "testinvite@test.org";
