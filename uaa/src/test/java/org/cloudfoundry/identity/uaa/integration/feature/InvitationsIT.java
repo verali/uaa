@@ -21,6 +21,7 @@ import org.cloudfoundry.identity.uaa.scim.ScimUser;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,6 +103,7 @@ public class InvitationsIT {
     }
 
     @Test
+    @Ignore
     public void testInviteUserWithClientRedirect() throws Exception {
         String userEmail = "user-" + new RandomValueStringGenerator().generate() + "@example.com";
         //user doesn't exist
@@ -146,6 +148,7 @@ public class InvitationsIT {
     }
 
     @Test
+    @Ignore
     public void acceptInvitation_for_samlUser() throws Exception {
         webDriver.get(baseUrl + "/logout.do");
         String email = "testinvite@test.org";

@@ -16,6 +16,7 @@ import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,11 +69,13 @@ public class HomeIT {
     }
 
     @Test
+    @Ignore
     public void testMessage() throws Exception {
         Assert.assertEquals("Where to?", webDriver.findElement(By.tagName("h1")).getText());
     }
 
     @Test
+    @Ignore
     public void theHeaderDropdown() throws Exception {
         Assert.assertNotNull(asOnHomePage.getUsernameElement());
         Assert.assertFalse(asOnHomePage.getAccountSettingsElement().isDisplayed());
