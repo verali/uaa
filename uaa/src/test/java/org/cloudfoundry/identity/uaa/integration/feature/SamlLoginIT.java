@@ -472,6 +472,7 @@ public class SamlLoginIT {
         if (null == userId) {
             return;
         }
+        if (userId == null) return;
 
         IntegrationTestUtils.deleteUser(zoneAdminToken, baseUrl, userId);
     }
