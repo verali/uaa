@@ -36,6 +36,9 @@ public class JwtBearerAssertionAuthenticationFilter extends OncePerRequestFilter
     @Value("${ENFORCE_CLIENT_ASSERTION_HEADER:true}")
     private boolean enforceClientAssertionHeader;
 
+    @Value("${CLIENT_ASSERTION_TTL:15}")
+    private Integer clientAssertionHeaderTTL;
+    
     /**
      * An authentication entry point that can handle unsuccessful authentication. Defaults to an
      * {@link OAuth2AuthenticationEntryPoint}.
@@ -89,7 +92,7 @@ public class JwtBearerAssertionAuthenticationFilter extends OncePerRequestFilter
 
     private Authentication authenticateJwtAssertion(final HttpServletRequest request, String jwtAssertion) {
         JwtBearerAssertionTokenAuthenticator tokenAuthenticator = new JwtBearerAssertionTokenAuthenticator(
-                request.getRequestURL().toString());
+                request.getRequestURL().toString(), this.clientAssertionHeaderTTL);
         tokenAuthenticator.setClientDetailsService(this.clientDetailsService);
         tokenAuthenticator.setClientPublicKeyProvider(this.publicKeyProvider);
 
@@ -97,7 +100,7 @@ public class JwtBearerAssertionAuthenticationFilter extends OncePerRequestFilter
             return tokenAuthenticator.authenticate(jwtAssertion,
                     request.getHeader(PREDIX_CLIENT_ASSERTION_HEADER), this.proxyPublicKey);
         } else {
-            return tokenAuthenticator.authenticate(jwtAssertion);
+            return tokenAuthenticator.authenticateWithoutClientAssertionHeader(jwtAssertion);
         }
     }
 }
