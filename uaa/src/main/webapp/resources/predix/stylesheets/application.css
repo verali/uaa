@@ -11,7 +11,7 @@ html {
 *,
 :after,
 :before {
-    box-sizing: inherit
+    box-sizing: border-box
 }
 
 .float--right {
@@ -246,7 +246,7 @@ h3,
 h4,
 h5,
 h6 {
-	color: #fff;
+	color: #000;
     font-size: 1rem;
     line-height: 1.25;
     font-weight: 400
@@ -407,6 +407,10 @@ fieldset[disabled] label {
 }
 
 .required-input__error-message {
+    visibility: hidden
+}
+
+.nav {
     visibility: hidden
 }
 
@@ -571,6 +575,10 @@ sub {
 
 .text--white {
     color: #fff
+}
+
+.text--bg {
+    color: #333
 }
 
 .text--black {
@@ -3861,6 +3869,64 @@ body {
 
 .island .island-content .left a {
     margin-top: 5px
+}
+
+.application-link {
+  font-size: 14px; }
+  
+.application-scopes {
+border: 1px solid #cccccc;
+margin: 12px 0;
+padding: 20px; }
+.application-scopes li {
+  padding: 0 16px 16px 16px; }
+  .application-scopes li:first-child {
+    padding-top: 16px; }
+.application-scopes input {
+  display: inline-block;
+  margin: 6px 0;
+  vertical-align: top; }
+.application-scopes label {
+  width: 298px;
+  margin-left: 10px; }
+.application-scopes .undecided label {
+  font-weight: 600; 
+
+
+}.actions {
+  margin-top: 40px;
+  text-align: center; }
+  .actions button[type='submit'] {
+    height: 30px;
+    line-height: 12px;
+    margin: 0 10px;
+    min-width: 120px; 
+}
+
+.panel-container {
+  margin-top: 68px; }
+
+
+.panel {
+  margin-bottom: 22px;
+  background-color: white;
+  border: 1px solid transparent;
+  border-radius: 0;
+  -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); }
+
+
+.saml-login {
+  border-bottom: 1px solid #cccccc;
+  color: #cccccc;
+  font-size: 11px;
+  line-height: 18px;
+  margin-bottom: 10px;
+  padding: 10px 0; }
+  .saml-login .saml-login-link {
+    font-weight: 700; }
+  .saml-login p {
+    color: #7f7f7f; 
 }
 
 .footer .copyright {
