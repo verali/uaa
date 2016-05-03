@@ -134,12 +134,6 @@ blockquote,
 dl,
 fieldset,
 figure,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
 hr,
 ol,
 p,
@@ -246,11 +240,12 @@ h3,
 h4,
 h5,
 h6 {
-	color: #000;
-    font-size: 1rem;
-    line-height: 1.25;
-    font-weight: 400
+    font-weight: 400;
+	margin-top: 1rem;
+    margin-bottom: 5px;
+    color: #4B4B4B
 }
+
 
 form {
     position: static
@@ -389,7 +384,7 @@ button:invalid {
 }
 
 label {
-    display: block;
+    display: inline;
     margin-bottom: .625rem;
     font-weight: 700
 }
@@ -581,8 +576,13 @@ sub {
     color: #333
 }
 
+<<<<<<< 8dffcff4f5a22801c43c50064dbc86343fb72e66
 .text--black {
     color: #141414
+=======
+.text--custom {
+    font-size:20px
+>>>>>>> Stylized the branding changes for the AuthCode flow...
 }
 
 .text--shadow {
@@ -1223,7 +1223,7 @@ a.link--plain:hover {
     border-radius: 3px;
     color: #fff;
     font: inherit;
-    font-size: 28px;
+    font-size: 16px;
     font-weight: 400;
     line-height: 1em;
     text-align: center;
@@ -3168,6 +3168,7 @@ ol.linenums {
     visibility: hidden
 }
 
+
 .content-area {
     width: 100%;
     margin-left: 16.875rem;
@@ -3495,6 +3496,9 @@ samp {
     background-color: #f0f0f0
 }
 
+.top-padding {
+	padding-top: 10px;
+}
 .box--no-border {
     border: 0
 }
@@ -3876,8 +3880,15 @@ body {
   
 .application-scopes {
 border: 1px solid #cccccc;
+<<<<<<< 8dffcff4f5a22801c43c50064dbc86343fb72e66
 margin: 12px 0;
 padding: 20px; }
+=======
+list-style: none;
+margin: 12px 0;
+padding: 5px; 
+}
+>>>>>>> Stylized the branding changes for the AuthCode flow...
 .application-scopes li {
   padding: 0 16px 16px 16px; }
   .application-scopes li:first-child {
@@ -3887,6 +3898,7 @@ padding: 20px; }
   margin: 6px 0;
   vertical-align: top; }
 .application-scopes label {
+<<<<<<< 8dffcff4f5a22801c43c50064dbc86343fb72e66
   width: 298px;
   margin-left: 10px; }
 .application-scopes .undecided label {
@@ -3896,6 +3908,18 @@ padding: 20px; }
 }.actions {
   margin-top: 40px;
   text-align: center; }
+=======
+  width: 100%;
+  margin-left: 10px; 
+ }
+.application-scopes .undecided label {
+  font-weight: 500; 
+}
+.actions {
+  margin-top: 40px;
+  text-align: center; 
+}
+>>>>>>> Stylized the branding changes for the AuthCode flow...
   .actions button[type='submit'] {
     height: 30px;
     line-height: 12px;
@@ -3908,10 +3932,21 @@ padding: 20px; }
 
 
 .panel {
+<<<<<<< 8dffcff4f5a22801c43c50064dbc86343fb72e66
+=======
+  color: #4B4B4B;
+>>>>>>> Stylized the branding changes for the AuthCode flow...
   margin-bottom: 22px;
   background-color: white;
   border: 1px solid transparent;
   border-radius: 0;
+<<<<<<< 8dffcff4f5a22801c43c50064dbc86343fb72e66
+=======
+  text-align: left;
+  padding: 40px;
+  width: 50%;
+  margin: auto;
+>>>>>>> Stylized the branding changes for the AuthCode flow...
   -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05); }
 
@@ -3931,5 +3966,6 @@ padding: 20px; }
 
 .footer .copyright {
 	color: #fff;
-    visibility: visible
+    visibility: visible;
+    padding-top: 20px
 }
