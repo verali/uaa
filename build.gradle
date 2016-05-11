@@ -235,8 +235,11 @@ cargo {
   }
 
   local {
-    jvmArgs = "-javaagent:${jacocoJarPath}=output=file,dumponexit=true,append=false,destfile=${integrationTestCoverageExecutionData}"
-    outputFile = file('uaa/build/reports/tests/uaa-server.log')
+    //jacoco agent jar is causing startup to fail. see defect DE30159
+    //jvmArgs = "-javaagent:${jacocoJarPath}=output=file,dumponexit=true,append=false,destfile=${integrationTestCoverageExecutionData}"
+    //outputFile = file('uaa/build/reports/tests/uaa-server.log')
+    //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+    jvmArgs = ""
     systemProperties {
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
       property 'https.proxyHost', 'sjc1intproxy01.crd.ge.com'
