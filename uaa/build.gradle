@@ -27,18 +27,6 @@ eclipse {
   }
 }
 
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-   credentials {
-     username 'svc-dsp-reader'
-     password 'xeY3MegUdr'
-    }
-    url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
-  }
-}
-
 description = 'UAA'
 dependencies {
   compile(identityServer){
