@@ -33,18 +33,6 @@ repositories {
   }
 }
 
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-   credentials {
-     username 'svc-dsp-reader'
-     password 'xeY3MegUdr'
-    }
-    url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
-  }
-}
-
 description = 'UAA'
 dependencies {
   compile(identityServer){
@@ -60,7 +48,7 @@ dependencies {
   runtime group: 'postgresql', name: 'postgresql', version:parent.postgresqlVersion
   
   providedCompile group: 'javax.servlet', name: 'javax.servlet-api', version: parent.servletVersion
-  runtime group: 'com.ge.predix', name: 'spring-log-filter', version:'1.0.0'
+  providedCompile group: 'com.ge.predix', name: 'spring-log-filter', version:'1.0.0'
 
   // For Spring Metering Filter support
   runtime group: 'com.ge.predix', name: 'spring-metering-filter', version:'1.2.0'
@@ -82,6 +70,7 @@ dependencies {
     exclude(module: 'slf4j-api')
     exclude(module: 'slf4j-log4j12')
   }
+  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: parent.hamcrestVersion
   testCompile group: 'junit', name: 'junit', version: parent.junitVersion
   testCompile group: 'org.seleniumhq.selenium', name: 'selenium-java', version:'2.42.2'
   testCompile(group: 'com.github.detro.ghostdriver', name: 'phantomjsdriver', version:'1.1.0') {
@@ -92,7 +81,6 @@ dependencies {
   testCompile group: 'org.skyscreamer', name:'jsonassert', version: '0.9.0'
   testCompile group: 'org.springframework', name: 'spring-test', version: parent.springVersion
   testCompile group: 'org.springframework.security', name: 'spring-security-test', version: parent.springSecurityVersion
-  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: parent.hamcrestVersion
   testCompile group: 'org.mockito', name: 'mockito-all', version: parent.mockitoVersion
   testCompile group: 'org.apache.tomcat', name: 'tomcat-jdbc', version:parent.tomcatVersion
   testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:1.1.0.M1'
@@ -125,8 +113,6 @@ generateDocs {
 }
 
 integrationTest {
-  systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
-  systemProperty "https.proxyPort", "8080"
   filter {
     includeTestsMatching "org.cloudfoundry.identity.uaa.integration.*"
     includeTestsMatching "*IT"
