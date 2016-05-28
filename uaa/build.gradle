@@ -93,6 +93,10 @@ test {
   exclude 'org/cloudfoundry/identity/uaa/integration/*.class'
   exclude '**/*IT.class'
   systemProperty "mock.suite.test", "true"
+  systemProperty "http.proxyHost", "sjc1intproxy01.crd.ge.com"
+  systemProperty "http.proxyPort", "8080"
+  systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
+  systemProperty "https.proxyPort", "8080"
 }
 task docsTestRestDocs(type: Test) {
   include '**/DefaultDocsTestSuite.class'
