@@ -48,6 +48,8 @@ apply from: file('shared_versions.gradle')
 def uaaVersion = version
 def geArtifactoryReader = System.getenv('ARTIFACTORY_READER')
 def geArtifactoryReaderPassword  = System.getenv('ARTIFACTORY_READER_PW')
+def proxyHost  = System.getenv('PROXY_HOST')
+def proxyHost  = System.getenv('PROXY_PORT')
 
 allprojects {
   apply plugin: 'maven'
@@ -72,6 +74,13 @@ allprojects {
      }
      url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
    }
+  }
+
+  test {
+    systemProperty "http.proxyHost", proxyHost
+    systemProperty "http.proxyPort", proxyPort 
+    systemProperty "https.proxyHost", proxyHost 
+    systemProperty "https.proxyPort", proxyPort 
   }
 }
 
