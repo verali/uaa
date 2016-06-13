@@ -104,5 +104,4 @@
                 pool-size="${database.maxactive:100}" />
         </cloud:data-source>
     </beans>
->>>>>>> [Dario] Modified data source spring declaration so that it is possible to configure database connection pool in cloud profile.
 </beans>
