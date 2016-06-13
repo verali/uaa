@@ -84,6 +84,12 @@ processResources {
   filter { line -> line.contains('${project.artifactId}') ? line.replace('${project.artifactId}','cloudfoundry-identity-server') : line }
 }
 
+test {
+    systemProperty "http.proxyHost", "sjc1intproxy01.crd.ge.com"
+    systemProperty "http.proxyPort", "8080"
+    systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
+    systemProperty "https.proxyPort", "8080"
+}
 integrationTest {}.onlyIf { //disable since we don't have any
   true == false
 }

@@ -180,8 +180,19 @@
                            @config['cors']['xhr']['max_age']==null ? 1728000 :
                            @config['cors']['xhr']['max_age']}"/>
     </bean>
-
-
+    <bean id="logFilter" class="com.ge.predix.log.filter.LogFilter">
+        <constructor-arg>
+            <set value-type="java.lang.String">
+                <value>${METER_BASE_DOMAIN:localhost}</value>
+            </set>
+        </constructor-arg>
+        <constructor-arg>
+            <set value-type="java.lang.String">
+                <value>X-Identity-Zone-Id</value>
+            </set>
+        </constructor-arg>
+        <constructor-arg value="uaa" />
+    </bean>
     <bean class="org.cloudfoundry.identity.uaa.security.web.SecurityFilterChainPostProcessor">
         <property name="requireHttps" value="${require_https:false}" />
         <property name="dumpRequests" value="${dump_requests:false}" />
