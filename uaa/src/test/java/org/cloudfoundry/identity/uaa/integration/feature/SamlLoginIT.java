@@ -280,7 +280,7 @@ public class SamlLoginIT {
         IdentityProvider<SamlIdentityProviderDefinition> provider = createIdentityProvider("simplesamlphp");
 
         webDriver.get(baseUrl + "/login");
-        Assert.assertEquals("Predix", webDriver.getTitle());
+        Assert.assertEquals("Cloud Foundry", webDriver.getTitle());
         webDriver.findElement(By.xpath("//a[text()='" + provider.getConfig().getLinkText() + "']")).click();
         webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
         webDriver.findElement(By.name("username")).clear();
@@ -381,7 +381,7 @@ public class SamlLoginIT {
 
         webDriver.get(baseUrl + "/login");
         //This is modified for branding login.yml changes...
-        Assert.assertEquals("Predix", webDriver.getTitle());
+        Assert.assertEquals("Cloud Foundry", webDriver.getTitle());
         webDriver.findElement(By.xpath("//a[text()='" + provider.getConfig().getLinkText() + "']")).click();
         webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
         webDriver.findElement(By.name("username")).clear();
