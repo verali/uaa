@@ -133,7 +133,7 @@ public class LoginIT {
     @Test
     public void testSuccessfulLogin() throws Exception {
         webDriver.get(baseUrl + "/login");
-        assertEquals("Predix", webDriver.getTitle());
+        assertEquals("Cloud Foundry", webDriver.getTitle());
         attemptLogin(testAccounts.getUserName(), testAccounts.getPassword());
         assertThat(webDriver.findElement(By.cssSelector("h1")).getText(), Matchers.containsString("You should not see this page. Set up your redirect URI."));
     }
@@ -148,7 +148,7 @@ public class LoginIT {
     @Test
     public void testPasscodeRedirect() throws Exception {
         webDriver.get(baseUrl + "/passcode");
-        assertEquals("Predix", webDriver.getTitle());
+        assertEquals("Cloud Foundry", webDriver.getTitle());
 
         attemptLogin(testAccounts.getUserName(), testAccounts.getPassword());
 
@@ -158,7 +158,7 @@ public class LoginIT {
     @Test
     public void testFailedLogin() throws Exception {
         webDriver.get(baseUrl + "/login");
-        assertEquals("Predix", webDriver.getTitle());
+        assertEquals("Cloud Foundry", webDriver.getTitle());
 
         attemptLogin(testAccounts.getUserName(), "invalidpassword");
         assertThat(webDriver.findElement(By.cssSelector("p")).getText(), Matchers.containsString("Unable to verify email or password. Please try again."));

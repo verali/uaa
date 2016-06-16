@@ -298,7 +298,7 @@ public class SamlLoginWithLocalIdpIT {
 
         webDriver.get(baseUrl + firstUrl);
         //This is modified for branding login.yml changes...
-        Assert.assertEquals("Predix", webDriver.getTitle());
+        Assert.assertEquals("Cloud Foundry", webDriver.getTitle());
         webDriver.findElement(By.xpath("//a[text()='" + provider.getConfig().getLinkText() + "']")).click();
         webDriver.findElement(By.xpath("//h1[contains(text(), 'Welcome!')]"));
         webDriver.findElement(By.name("username")).clear();
