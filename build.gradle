@@ -44,6 +44,8 @@ ext {
 apply from: file('shared_versions.gradle')
 
 def uaaVersion = version
+def proxyHost  = System.getenv('PROXY_HOST')
+def proxyPort  = System.getenv('PROXY_PORT')
 
 allprojects {
   apply plugin: 'maven'
@@ -60,6 +62,13 @@ allprojects {
 
   repositories {
     mavenCentral()
+  }
+
+  test {
+    systemProperty "http.proxyHost", proxyHost
+    systemProperty "http.proxyPort", proxyPort 
+    systemProperty "https.proxyHost", proxyHost 
+    systemProperty "https.proxyPort", proxyPort 
   }
 }
 
