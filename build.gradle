@@ -238,8 +238,6 @@ cargo {
     //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
     systemProperties {
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
-      property "https.proxyHost", System.getProperty('https.proxyHost')
-      property "https.proxyPort", System.getProperty('https.proxyPort')
     }
 
     installer {
