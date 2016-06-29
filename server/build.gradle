@@ -87,11 +87,13 @@ processResources {
 }
 
 test {
-    systemProperty "http.proxyHost", "sjc1intproxy01.crd.ge.com"
-    systemProperty "http.proxyPort", "8080"
-    systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
-    systemProperty "https.proxyPort", "8080"
+
+    systemProperty "http.proxyHost", System.getenv('PROXY_HOST')
+    systemProperty "http.proxyPort", System.getenv('PROXY_PORT') 
+    systemProperty "https.proxyHost", System.getenv('PROXY_HOST') 
+    systemProperty "https.proxyPort", System.getenv('PROXY_PORT')
 }
+
 integrationTest {}.onlyIf { //disable since we don't have any
   true == false
 }
