@@ -644,6 +644,27 @@ public class ScimUserEndpointsTests {
     }
 
     @Test
+    public void testValidFilterExpression() {
+        SearchResults<?> results = endpoints.findUsers("id", "userName eq \"d\"", "created", "ascending", 1, 100);
+        assertEquals(0, results.getTotalResults());
+    }
+
+    @Test
+    public void testInvalidOrderByExpression() {
+        expected.expect(ScimException.class);
+        expected.expectMessage(containsString("Invalid filter"));
+        SearchResults<?> results = endpoints.findUsers("id", "userName eq \"d\"", "created,unknown", "ascending", 1, 100);
+        assertEquals(0, results.getTotalResults());
+    }
+
+    @Test
+    public void testValidOrderByExpression() {
+        endpoints.findUsers("id", "userName eq \"d\"", "1,created", "ascending", 1, 100);
+        endpoints.findUsers("id", "userName eq \"d\"", "1,2", "ascending", 1, 100);
+        endpoints.findUsers("id", "userName eq \"d\"", "username,created", "ascending", 1, 100);
+    }
+
+    @Test
     public void testFindIdsByEmailContainsWithEmptyResult() {
         SearchResults<?> results = endpoints.findUsers("id", "emails.value sw \"z\"", null, "ascending", 1, 100);
         assertEquals(0, results.getTotalResults());

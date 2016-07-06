@@ -301,5 +301,9 @@ public class JdbcScimGroupExternalMembershipManager extends AbstractQueryable<Sc
         return String.format("select %s from %s where %s",
             JOIN_EXTERNAL_GROUP_MAPPING_FIELDS, JOIN_GROUP_TABLE, "g.id = gm.group_id and g.identity_zone_id='"+IdentityZoneHolder.get().getId()+"'");
     }
-
+    
+    @Override
+    protected void validateOrderBy(String orderBy) throws IllegalArgumentException {
+        super.validateOrderBy(orderBy, EXTERNAL_GROUP_MAPPING_FIELDS);
+    }
 }

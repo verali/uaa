@@ -19,8 +19,11 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.util.StringUtils;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public abstract class AbstractQueryable<T> implements Queryable<T> {
 
@@ -82,6 +85,7 @@ public abstract class AbstractQueryable<T> implements Queryable<T> {
 
     @Override
     public List<T> query(String filter, String sortBy, boolean ascending) {
+        validateOrderBy(queryConverter.map(sortBy));
         SearchQueryConverter.ProcessedFilter where = queryConverter.convert(filter, sortBy, ascending);
         logger.debug("Filtering groups with SQL: " + where);
         List<T> result;
@@ -115,6 +119,34 @@ public abstract class AbstractQueryable<T> implements Queryable<T> {
     protected abstract String getBaseSqlQuery();
     protected abstract String getTableName();
 
+    protected abstract void validateOrderBy(String orderBy) throws IllegalArgumentException;
+
+    protected void validateOrderBy(String orderBy, String fields) throws IllegalArgumentException {
+        if (!StringUtils.hasText(orderBy)) {
+            return;
+        }
+        String[] input = StringUtils.commaDelimitedListToStringArray(orderBy);
+        Set<String> compare = new HashSet<>();
+        StringUtils.commaDelimitedListToSet(fields)
+                .stream()
+                .forEach(p -> compare.add(p.toLowerCase().trim()));
+        boolean allints = true;
+        for (String s : input) {
+            try {
+                Integer.parseInt(s);
+            } catch (NumberFormatException e) {
+                allints = false;
+                if (!compare.contains(s.toLowerCase().trim())) {
+                    throw new IllegalArgumentException("Invalid sort field:"+s);
+                }
+            }
+        }
+        if (allints) {
+            return;
+        }
+
+
+}
     public SearchQueryConverter getQueryConverter() {
         return queryConverter;
     }

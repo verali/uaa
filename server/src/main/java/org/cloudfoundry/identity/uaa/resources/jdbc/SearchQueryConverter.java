@@ -62,5 +62,7 @@ public interface SearchQueryConverter {
     ProcessedFilter convert(String filter, String sortBy, boolean ascending);
 
     ProcessedFilter convert(String filter, String sortBy, boolean ascending, AttributeNameMapper mapper);
+    
+    String map(String attribute);
 
 }

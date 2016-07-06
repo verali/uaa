@@ -486,4 +486,9 @@ public class JdbcScimUserProvisioning extends AbstractQueryable<ScimUser>
         return count;
     }
 
+    @Override
+    protected void validateOrderBy(String orderBy) throws IllegalArgumentException {
+        super.validateOrderBy(orderBy, USER_FIELDS);
+    }
+
 }

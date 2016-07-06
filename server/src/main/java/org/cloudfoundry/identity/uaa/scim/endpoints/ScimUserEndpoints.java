@@ -322,7 +322,11 @@ public class ScimUserEndpoints implements InitializingBean {
                 input.add(user);
             }
         } catch (IllegalArgumentException e) {
-            throw new ScimException("Invalid filter expression: [" + filter + "]", HttpStatus.BAD_REQUEST);
+            String msg = "Invalid filter expression: [" + filter + "]";
+            if (StringUtils.hasText(sortBy)) {
+                msg += " [" +sortBy+"]";
+            }
+            throw new ScimException(msg, HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasLength(attributesCommaSeparated)) {

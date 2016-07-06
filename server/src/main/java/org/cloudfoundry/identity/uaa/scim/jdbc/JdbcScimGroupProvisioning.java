@@ -223,6 +223,11 @@ public class JdbcScimGroupProvisioning extends AbstractQueryable<ScimGroup>
         }
     }
 
+    @Override
+    protected void validateOrderBy(String orderBy) throws IllegalArgumentException {
+        super.validateOrderBy(orderBy, GROUP_FIELDS);
+    }
+    
     private static final class ScimGroupRowMapper implements RowMapper<ScimGroup> {
 
         @Override

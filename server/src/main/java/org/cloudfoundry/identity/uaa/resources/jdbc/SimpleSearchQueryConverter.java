@@ -131,7 +131,7 @@ public class SimpleSearchQueryConverter implements SearchQueryConverter {
     }
 
     protected String comparisonClause(SCIMFilter filter, String comparator, Map<String, Object> values, String valuePrefix, String valueSuffix, String paramPrefix) {
-        String pName = getParamName(filter, values, paramPrefix);
+        String pName = getParamName(values, paramPrefix);
         String paramName = ":"+pName;
         if (filter.getFilterValue() == null) {
             return getAttributeName(filter, mapper) + " IS NULL";
@@ -184,7 +184,7 @@ public class SimpleSearchQueryConverter implements SearchQueryConverter {
         return name.replace("meta.", "");
     }
 
-    protected String getParamName(SCIMFilter filter, Map<String, Object> values, String paramPrefix) {
+    protected String getParamName(Map<String, Object> values, String paramPrefix) {
         return paramPrefix+values.size();
     }
 
@@ -197,6 +197,9 @@ public class SimpleSearchQueryConverter implements SearchQueryConverter {
         }
     }
 
-
+    @Override
+    public String map(String attribute) {
+        return StringUtils.hasText(attribute) ? mapper.mapToInternal(attribute) : attribute;
+    }
 
 }

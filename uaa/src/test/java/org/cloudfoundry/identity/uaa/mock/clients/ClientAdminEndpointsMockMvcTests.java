@@ -1177,7 +1177,7 @@ public class ClientAdminEndpointsMockMvcTests extends InjectedMockContextTest {
 
         MockHttpServletRequestBuilder get = get("/oauth/clients")
                 .header("Authorization", "Bearer " + token)
-                .param("sortBy", "lastModified")
+                .param("sortBy", "lastmodified")
                 .param("sortOrder", "descending")
                 .accept(APPLICATION_JSON);
 

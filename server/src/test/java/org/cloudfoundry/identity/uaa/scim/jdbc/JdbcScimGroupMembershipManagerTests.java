@@ -173,8 +173,17 @@ public class JdbcScimGroupMembershipManagerTests extends JdbcTestBase {
         IdentityZone zone = MultitenancyFixture.identityZone(id,id);
         IdentityZoneHolder.set(zone);
         assertEquals(0,dao.query("origin eq \"" + OriginKeys.UAA + "\"").size());
+        IdentityZoneHolder.clear();
+        assertEquals(4,dao.query("origin eq \"" + OriginKeys.UAA + "\"").size());
+        assertEquals(4,dao.query("origin eq \"" + OriginKeys.UAA + "\"", "member_id", true).size());
+        assertEquals(4,dao.query("origin eq \"" + OriginKeys.UAA + "\"", "1,2", true).size());
+        assertEquals(4,dao.query("origin eq \"" + OriginKeys.UAA + "\"", "origin", true).size());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void cannotQuery_Filter_Has_Unknown_Sort() throws Exception {
+        dao.query("origin eq \"" + OriginKeys.UAA + "\"", "unknown,origin", true);
+    }
 
     @Test
     public void canDeleteWithFilter1() throws Exception {

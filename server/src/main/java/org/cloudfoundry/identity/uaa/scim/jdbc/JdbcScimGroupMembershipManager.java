@@ -431,6 +431,11 @@ public class JdbcScimGroupMembershipManager extends AbstractQueryable<ScimGroupM
         return groups;
     }
 
+    @Override
+    protected void validateOrderBy(String orderBy) throws IllegalArgumentException {
+        super.validateOrderBy(orderBy, MEMBERSHIP_FIELDS);
+    }
+    
     private boolean isUser(String uuid) {
         try {
             userProvisioning.retrieve(uuid);

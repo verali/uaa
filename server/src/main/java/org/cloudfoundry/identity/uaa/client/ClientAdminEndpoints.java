@@ -467,7 +467,11 @@ public class ClientAdminEndpoints implements InitializingBean {
                 count = clients.size();
             }
         } catch (IllegalArgumentException e) {
-            throw new UaaException("Invalid filter expression: [" + filter + "]", HttpStatus.BAD_REQUEST.value());
+            String msg = "Invalid filter expression: [" + filter + "]";
+            if (StringUtils.hasText(sortBy)) {
+                msg += " [" +sortBy+"]";
+            }
+            throw new UaaException(msg, HttpStatus.BAD_REQUEST.value());
         }
         for (ClientDetails client : UaaPagingUtils.subList(clients, startIndex, count)) {
             result.add(removeSecret(client));
