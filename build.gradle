@@ -242,11 +242,16 @@ cargo {
   }
 
   local {
-    jvmArgs = "-javaagent:${jacocoJarPath}=output=file,dumponexit=true,append=false,destfile=${integrationTestCoverageExecutionData}"
+    //jvmArgs = "-javaagent:${jacocoJarPath}=output=file,dumponexit=true,append=false,destfile=${integrationTestCoverageExecutionData}"
+    jvmArgs = ""
     outputFile = file('uaa/build/reports/tests/uaa-server.log')
     //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
     systemProperties {
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
+      property 'http.proxyHost', proxyHost
+      property 'http.proxyPort', proxyPort
+      property 'https.proxyHost', proxyHost
+      property 'https.proxyPort', proxyPort
     }
 
     installer {
