@@ -44,10 +44,12 @@ ext {
 apply from: file('shared_versions.gradle')
 
 def uaaVersion = version
-def proxyHost  = System.getenv('PROXY_HOST')
-def proxyPort  = System.getenv('PROXY_PORT')
+
 def geArtifactoryReader = System.getenv('ARTIFACTORY_READER')
 def geArtifactoryReaderPassword  = System.getenv('ARTIFACTORY_READER_PW')
+def proxyHost  = System.getenv('PROXY_HOST')
+def proxyPort  = System.getenv('PROXY_PORT')
+def nonProxyHosts = 'localhost|*.localhost'
 
 allprojects {
   apply plugin: 'maven'
@@ -76,9 +78,10 @@ allprojects {
 
   test {
     systemProperty "http.proxyHost", proxyHost
-    systemProperty "http.proxyPort", proxyPort 
-    systemProperty "https.proxyHost", proxyHost 
-    systemProperty "https.proxyPort", proxyPort 
+    systemProperty "http.proxyPort", proxyPort
+    systemProperty "https.proxyHost", proxyHost
+    systemProperty "https.proxyPort", proxyPort
+    systemProperty "http.nonProxyHosts", nonProxyHosts
   }
 }
 
@@ -247,11 +250,12 @@ cargo {
     outputFile = file('uaa/build/reports/tests/uaa-server.log')
     //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
     systemProperties {
-      property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
       property 'http.proxyHost', proxyHost
       property 'http.proxyPort', proxyPort
       property 'https.proxyHost', proxyHost
       property 'https.proxyPort', proxyPort
+      property 'http.nonProxyHosts', nonProxyHosts
+      property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
     }
 
     installer {
