@@ -22,6 +22,8 @@ buildscript {
     classpath 'org.springframework.build.gradle:propdeps-plugin:0.0.7'
     classpath "gradle.plugin.com.dorongold.plugins:task-tree:1.2.1"
     classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+    classpath 'org.springframework.cloud:spring-cloud-spring-service-connector:1.1.1.RELEASE'
+    classpath 'org.springframework.cloud:spring-cloud-cloudfoundry-connector:1.1.1.RELEASE'
   }
 }
 
@@ -245,10 +247,12 @@ cargo {
   }
 
   local {
+    //jacoco agent jar is causing startup to fail. see defect DE30159
     //jvmArgs = "-javaagent:${jacocoJarPath}=output=file,dumponexit=true,append=false,destfile=${integrationTestCoverageExecutionData}"
+    //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
     jvmArgs = ""
     outputFile = file('uaa/build/reports/tests/uaa-server.log')
-    //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
+
     systemProperties {
       property 'http.proxyHost', proxyHost
       property 'http.proxyPort', proxyPort
@@ -256,6 +260,9 @@ cargo {
       property 'https.proxyPort', proxyPort
       property 'http.nonProxyHosts', nonProxyHosts
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
+      property 'NUREGO_BATCH_INTERVAL_SECONDS', '1'
+      property 'NUREGO_BATCH_MAX_MAP_SIZE', '1'
+      property 'METER_BASE_DOMAIN', 'localhost'
     }
 
     installer {
@@ -274,7 +281,7 @@ project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
     }
 
     local {
-//      jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
+      //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005"
 
       systemProperties {
           //property 'uaa.allowUnverifiedUsers', 'false'

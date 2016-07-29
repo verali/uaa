@@ -60,7 +60,8 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@Ignore //This feature is disabled in predix uaa
+
+@Ignore // Invitations flow is disabled in Predix UAA.
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DefaultIntegrationTestConfig.class)
 public class InvitationsIT {
@@ -120,6 +121,7 @@ public class InvitationsIT {
     }
 
     @Test
+    @Ignore
     public void testInviteUserWithClientRedirect() throws Exception {
         String userEmail = "user-" + new RandomValueStringGenerator().generate() + "@example.com";
         //user doesn't exist
@@ -187,6 +189,7 @@ public class InvitationsIT {
     }
 
     @Test
+    @Ignore
     public void testInsecurePasswordDisplaysErrorMessage() throws Exception {
         String code = createInvitation();
         webDriver.get(baseUrl + "/invitations/accept?code=" + code);
