@@ -89,15 +89,21 @@ dependencies {
 ext {
   snippetsDir = file('build/generated-snippets')
 }
+
+def proxyHost  = System.getenv('PROXY_HOST')
+def proxyPort  = System.getenv('PROXY_PORT')
+def nonProxyHosts = 'localhost|*.localhost'
+
 test {
   exclude 'org/cloudfoundry/identity/uaa/integration/*.class'
   exclude '**/*IT.class'
   systemProperty "mock.suite.test", "true"
 
-  systemProperty "http.proxyHost", System.getenv('PROXY_HOST')
-  systemProperty "http.proxyPort", System.getenv('PROXY_PORT') 
-  systemProperty "https.proxyHost", System.getenv('PROXY_HOST') 
-  systemProperty "https.proxyPort", System.getenv('PROXY_PORT')
+  systemProperty "http.proxyHost", proxyHost
+  systemProperty "http.proxyPort", proxyPort 
+  systemProperty "https.proxyHost", proxyHost 
+  systemProperty "https.proxyPort", proxyPort
+  systemProperty "http.nonProxyHosts", nonProxyHosts
 }
 task docsTestRestDocs(type: Test) {
   include '**/DefaultDocsTestSuite.class'
@@ -118,8 +124,11 @@ generateDocs {
 }
 
 integrationTest {
-  systemProperty "https.proxyHost", "sjc1intproxy01.crd.ge.com"
-  systemProperty "https.proxyPort", "8080"
+  systemProperty "http.proxyHost", proxyHost
+  systemProperty "http.proxyPort", proxyPort 
+  systemProperty "https.proxyHost", proxyHost 
+  systemProperty "https.proxyPort", proxyPort
+  systemProperty "http.nonProxyHosts", nonProxyHosts
   filter {
     includeTestsMatching "org.cloudfoundry.identity.uaa.integration.*"
     includeTestsMatching "*IT"

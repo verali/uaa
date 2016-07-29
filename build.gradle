@@ -51,6 +51,7 @@ def geArtifactoryReader = System.getenv('ARTIFACTORY_READER')
 def geArtifactoryReaderPassword  = System.getenv('ARTIFACTORY_READER_PW')
 def proxyHost  = System.getenv('PROXY_HOST')
 def proxyPort  = System.getenv('PROXY_PORT')
+def nonProxyHosts = 'localhost|*.localhost'
 
 allprojects {
   apply plugin: 'maven'
@@ -71,9 +72,10 @@ allprojects {
 
   test {
     systemProperty "http.proxyHost", proxyHost
-    systemProperty "http.proxyPort", proxyPort 
-    systemProperty "https.proxyHost", proxyHost 
-    systemProperty "https.proxyPort", proxyPort 
+    systemProperty "http.proxyPort", proxyPort
+    systemProperty "https.proxyHost", proxyHost
+    systemProperty "https.proxyPort", proxyPort
+    systemProperty "http.nonProxyHosts", nonProxyHosts
   }
 }
 
@@ -242,11 +244,14 @@ cargo {
     outputFile = file('uaa/build/reports/tests/uaa-server.log')
     //jvmArgs = "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005"
     jvmArgs = ""
-    
+
     systemProperties {
+      property 'http.proxyHost', proxyHost
+      property 'http.proxyPort', proxyPort
+      property 'https.proxyHost', proxyHost
+      property 'https.proxyPort', proxyPort
+      property 'http.nonProxyHosts', nonProxyHosts
       property 'spring.profiles.active', System.getProperty('spring.profiles.active', 'default')
-      property 'https.proxyHost', 'sjc1intproxy01.crd.ge.com'
-      property 'https.proxyPort', '8080'
       property 'NUREGO_BATCH_INTERVAL_SECONDS', '1'
       property 'NUREGO_BATCH_MAX_MAP_SIZE', '1'
       property 'METER_BASE_DOMAIN', 'localhost'
