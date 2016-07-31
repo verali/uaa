@@ -104,7 +104,7 @@ public class LogoutIT {
         //create the zone
         createZoneSubdomain(identityClient, baseUrl, zoneId, zoneId);
 
-        String redirectUrl = "http://www.ge.com/";
+        String redirectUrl = "http://localhost:8080/uaa/login";
         webDriver.get(zoneUrl + "/logout.do?redirect=" + URLEncoder.encode(redirectUrl, "UTF-8"));
         assertEquals(redirectUrl, webDriver.getCurrentUrl());
     }
