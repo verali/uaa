@@ -141,6 +141,7 @@ public class ResetPasswordIT {
     }
 
     @Test
+    @Ignore
     public void resetPassword_with_clientRedirect() throws Exception {
         webDriver.get(baseUrl + "/forgot_password?client_id=" + scimClientId + "&redirect_uri=http://example.redirect.com");
         Assert.assertEquals("Reset Password", webDriver.findElement(By.tagName("h1")).getText());
