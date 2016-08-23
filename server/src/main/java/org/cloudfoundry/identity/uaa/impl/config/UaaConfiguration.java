@@ -292,12 +292,18 @@ public class UaaConfiguration {
         if (args.length != 1) {
             throw new IllegalArgumentException("YAML file required");
         }
+        Set<ConstraintViolation<UaaConfiguration>> errors = validateConfiguration(args[0]);
+        System.out.println(errors);
+    }
+
+    public static Set<ConstraintViolation<UaaConfiguration>> validateConfiguration(String yamlFilename)
+            throws Exception {
         Yaml yaml = new Yaml(new UaaConfigConstructor());
-        BufferedReader br = new BufferedReader(new FileReader(args[0]));
+        BufferedReader br = new BufferedReader(new FileReader(yamlFilename));
         UaaConfiguration config = (UaaConfiguration) yaml.load(br);
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
         Set<ConstraintViolation<UaaConfiguration>> errors = validator.validate(config);
-        System.out.println(errors);
+        return errors;
     }
 }

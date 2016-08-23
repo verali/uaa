@@ -14,11 +14,15 @@ package org.cloudfoundry.identity.uaa;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import org.cloudfoundry.identity.uaa.impl.config.UaaConfiguration;
 import org.cloudfoundry.identity.uaa.impl.config.YamlConfigurationValidator;
 import org.junit.Test;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /**
  * @author Luke Taylor
@@ -62,6 +66,26 @@ public class UaaConfigurationTests {
                         "      autoapprove: true\n" +
                         "      authorized-grant-types: implicit\n");
         assertTrue(validator.getObject().oauth.clients.containsKey("cf"));
+    }
+    @Test
+    public void validUaaConfigurationFileIsOk() throws Exception {
+        assertTrue(UaaConfiguration
+                .validateConfiguration(System.getProperty("user.dir") + "/src/test/resources/test/config/valid_uaa.yml")
+                .isEmpty());
+    }
+
+    @Test(expected = YAMLException.class)
+    public void invalidPropertyFormatFails() throws Exception {
+        UaaConfiguration
+            .validateConfiguration(System.getProperty("user.dir") + "/src/test/resources/test/config/invalid_cors_format_uaa.yml");
+    }
+
+    @Test
+    public void invalidPropertyConstraintFails() throws Exception {
+        Set<ConstraintViolation<UaaConfiguration>> errors = UaaConfiguration
+            .validateConfiguration(System.getProperty("user.dir") + "/src/test/resources/test/config/invalid_database_password_uaa.yml");
+        assertTrue(errors.size() == 1);
+        assertTrue(errors.iterator().next().getConstraintDescriptor().getAttributes().get("message").toString().contains("Database password is required"));
     }
 
     @Test(expected = ConstraintViolationException.class)
