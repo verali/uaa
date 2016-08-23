@@ -104,6 +104,7 @@ public class LoginSamlAuthenticationProviderTests extends JdbcTestBase {
     public static final String UAA_SAML_USER = "uaa.saml.user";
     public static final String UAA_SAML_ADMIN = "uaa.saml.admin";
     public static final String UAA_SAML_TEST = "uaa.saml.test";
+    public static final String UAA_ADMIN = "uaa.admin";
 
     public static final String COST_CENTER = "costCenter";
     public static final String DENVER_CO = "Denver,CO";
@@ -220,6 +221,7 @@ public class LoginSamlAuthenticationProviderTests extends JdbcTestBase {
         attributes.put("phone", "1234567890");
         attributes.put("groups", Arrays.asList(SAML_USER,SAML_ADMIN,SAML_NOT_MAPPED));
         attributes.put("2ndgroups", Arrays.asList(SAML_TEST));
+        attributes.put("admingroup", Arrays.asList(UAA_ADMIN));
 
         when(consumer.processAuthenticationResponse(anyObject())).thenReturn(credential);
 
@@ -259,6 +261,7 @@ public class LoginSamlAuthenticationProviderTests extends JdbcTestBase {
         attributes.put("phone", phoneNumber);
         attributes.put("groups", Arrays.asList(SAML_USER, SAML_ADMIN, SAML_NOT_MAPPED));
         attributes.put("2ndgroups", Arrays.asList(SAML_TEST));
+        attributes.put("admingroup", Arrays.asList(UAA_ADMIN));
         attributes.put(COST_CENTER, Arrays.asList(DENVER_CO));
         attributes.put(MANAGER, Arrays.asList(JOHN_THE_SLOTH, KARI_THE_ANT_EATER));
 
@@ -314,6 +317,22 @@ public class LoginSamlAuthenticationProviderTests extends JdbcTestBase {
                         new SimpleGrantedAuthority(SAML_USER),
                         new SimpleGrantedAuthority(SAML_TEST),
                         new SimpleGrantedAuthority(SAML_NOT_MAPPED),
+                        new SimpleGrantedAuthority(UaaAuthority.UAA_USER.getAuthority())
+                )
+        );
+    }
+
+    @Test
+    public void test_uaa_admin_external_group_as_scopes() throws Exception {
+        providerDefinition.setGroupMappingMode(SamlIdentityProviderDefinition.ExternalGroupMappingMode.AS_SCOPES);
+        providerDefinition.addAttributeMapping(GROUP_ATTRIBUTE_NAME, Arrays.asList("admingroup"));
+        provider.setConfig(providerDefinition);
+        providerProvisioning.update(provider);
+        UaaAuthentication authentication = getAuthentication();
+        assertEquals("Two authorities should have been granted!", 2, authentication.getAuthorities().size());
+        assertThat(authentication.getAuthorities(),
+                containsInAnyOrder(
+                        new SimpleGrantedAuthority(UAA_ADMIN),
                         new SimpleGrantedAuthority(UaaAuthority.UAA_USER.getAuthority())
                 )
         );

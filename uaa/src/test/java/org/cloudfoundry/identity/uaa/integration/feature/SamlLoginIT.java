@@ -26,6 +26,7 @@ import org.cloudfoundry.identity.uaa.provider.IdentityProvider;
 import org.cloudfoundry.identity.uaa.provider.LockoutPolicy;
 import org.cloudfoundry.identity.uaa.provider.PasswordPolicy;
 import org.cloudfoundry.identity.uaa.provider.SamlIdentityProviderDefinition;
+import org.cloudfoundry.identity.uaa.provider.SamlIdentityProviderDefinition.ExternalGroupMappingMode;
 import org.cloudfoundry.identity.uaa.provider.UaaIdentityProviderDefinition;
 import org.cloudfoundry.identity.uaa.scim.ScimGroup;
 import org.cloudfoundry.identity.uaa.scim.ScimGroupExternalMember;
@@ -748,6 +749,88 @@ public class SamlLoginIT {
         String samlUserId = IntegrationTestUtils.getUserId(adminTokenInZone, zoneUrl, provider.getOriginKey(), "marissa4@test.org");
         uaaSamlUserGroup = IntegrationTestUtils.getGroup(adminTokenInZone, null, zoneUrl, "uaa.saml.user");
         uaaSamlAdminGroup = IntegrationTestUtils.getGroup(adminTokenInZone, null, zoneUrl, "uaa.saml.admin");
+        assertTrue(isMember(samlUserId, uaaSamlUserGroup));
+        assertTrue(isMember(samlUserId, uaaSamlAdminGroup));
+
+    }
+
+    @Test
+    public void testSamlLogin_Map_Groups_In_Zone1_AsScopes() throws Exception {
+        //ensure we are able to resolve DNS for hostname testzone1.localhost
+        assumeTrue("Expected testzone1/2/3/4.localhost to resolve to 127.0.0.1", doesSupportZoneDNS());
+        String zoneId = "testzone1";
+        String zoneUrl = baseUrl.replace("localhost", "testzone1.localhost");
+
+        //identity client token
+        RestTemplate identityClient = IntegrationTestUtils.getClientCredentialsTemplate(
+            IntegrationTestUtils.getClientCredentialsResource(baseUrl, new String[]{"zones.write", "zones.read", "scim.zones"}, "identity", "identitysecret")
+        );
+        //admin client token - to create users
+        RestTemplate adminClient = IntegrationTestUtils.getClientCredentialsTemplate(
+            IntegrationTestUtils.getClientCredentialsResource(baseUrl, new String[0], "admin", "adminsecret")
+        );
+        //create the zone
+        IntegrationTestUtils.createZoneOrUpdateSubdomain(identityClient, baseUrl, zoneId, zoneId);
+
+        //create a zone admin user
+        String email = new RandomValueStringGenerator().generate() +"@samltesting.org";
+        ScimUser user = IntegrationTestUtils.createUser(adminClient, baseUrl,email ,"firstname", "lastname", email, true);
+        IntegrationTestUtils.makeZoneAdmin(identityClient, baseUrl, user.getId(), zoneId);
+
+        //get the zone admin token
+        String zoneAdminToken =
+            IntegrationTestUtils.getAuthorizationCodeToken(serverRunning,
+                                                           UaaTestAccounts.standard(serverRunning),
+                                                           "identity",
+                                                           "identitysecret",
+                                                           email,
+                                                           "secr3T");
+
+        SamlIdentityProviderDefinition samlIdentityProviderDefinition = createTestZone1IDP("simplesamlphp");
+        samlIdentityProviderDefinition.addAttributeMapping(GROUP_ATTRIBUTE_NAME, "groups");
+        samlIdentityProviderDefinition.setGroupMappingMode(ExternalGroupMappingMode.AS_SCOPES);
+
+        IdentityProvider<SamlIdentityProviderDefinition> provider = new IdentityProvider<>();
+        provider.setIdentityZoneId(zoneId);
+        provider.setType(OriginKeys.SAML);
+        provider.setActive(true);
+        provider.setConfig(samlIdentityProviderDefinition);
+        provider.setOriginKey(samlIdentityProviderDefinition.getIdpEntityAlias());
+        provider.setName("simplesamlphp for testzone1");
+
+        provider = IntegrationTestUtils.createOrUpdateProvider(zoneAdminToken,baseUrl,provider);
+        assertEquals(provider.getOriginKey(), provider.getConfig().getIdpEntityAlias());
+
+        List<String> idps = Arrays.asList(provider.getOriginKey());
+
+        String adminClientInZone = "zone1-admin-client";
+        BaseClientDetails clientDetails = new BaseClientDetails(adminClientInZone, null, "openid,uaa.admin,saml.user", "authorization_code,client_credentials", "uaa.admin,scim.read,scim.write", zoneUrl);
+        clientDetails.setClientSecret("secret");
+        clientDetails.setAutoApproveScopes(Collections.singleton("true"));
+        clientDetails.addAdditionalInformation(ClientConstants.ALLOWED_PROVIDERS, idps);
+
+        clientDetails = IntegrationTestUtils.createClientAsZoneAdmin(zoneAdminToken, baseUrl, zoneId, clientDetails);
+        String adminTokenInZone = IntegrationTestUtils.getClientCredentialsToken(zoneUrl,clientDetails.getClientId(), "secret");
+
+        webDriver.get(zoneUrl + "/logout.do");
+
+        String authUrl = zoneUrl + "/oauth/authorize?client_id=" + clientDetails.getClientId() + "&redirect_uri=" + URLEncoder.encode(zoneUrl) + "&response_type=code&state=8tp0tR";
+        webDriver.get(authUrl);
+        //we should now be in the Simple SAML PHP site
+        webDriver.findElement(By.xpath("//h2[contains(text(), 'Enter your username and password')]"));
+        webDriver.findElement(By.name("username")).clear();
+        webDriver.findElement(By.name("username")).sendKeys("marissa4");
+        webDriver.findElement(By.name("password")).sendKeys("saml2");
+        webDriver.findElement(By.xpath("//input[@value='Login']")).click();
+
+        assertThat(webDriver.findElement(By.cssSelector("h1")).getText(), Matchers.containsString("Where to?"));
+        webDriver.get(baseUrl + "/logout.do");
+        webDriver.get(zoneUrl + "/logout.do");
+
+        //validate that the groups were mapped
+        String samlUserId = IntegrationTestUtils.getUserId(adminTokenInZone, zoneUrl, provider.getOriginKey(), "marissa4@test.org");
+        ScimGroup uaaSamlUserGroup = IntegrationTestUtils.getGroup(adminTokenInZone, null, zoneUrl, "saml.user");
+        ScimGroup uaaSamlAdminGroup = IntegrationTestUtils.getGroup(adminTokenInZone, null, zoneUrl, "saml.admin");
         assertTrue(isMember(samlUserId, uaaSamlUserGroup));
         assertTrue(isMember(samlUserId, uaaSamlAdminGroup));
 
