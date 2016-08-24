@@ -8,7 +8,7 @@
  *     This product includes a number of subcomponents with
  *     separate copyright notices and license terms. Your use of these
  *     subcomponents is subject to the terms and conditions of the
- *     subcomponent's license, as noted in the LICENSE file.
+ *     subcomponent's license, as noted in  the LICENSE file.
  *******************************************************************************/
 package org.cloudfoundry.identity.uaa.integration.feature;
 

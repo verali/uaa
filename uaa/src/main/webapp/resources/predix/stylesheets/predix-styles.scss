@@ -1,6 +1,6 @@
 @charset "UTF-8";
 @import "_mixins.scss";
-@import "predixio.css";
+
 
 ///--------------------------
 /// Variables
@@ -54,6 +54,7 @@ html {
 	max-width : none !important;
 	height    : 100%;
 	width     : 100%;
+	min-height: auto !important;
 	@include sm-down() {
 		overflow: auto;
 	}
@@ -70,6 +71,7 @@ body {
 	font-size: 1rem;
 	max-width: none !important;
 	position : relative;
+	min-height: auto !important;
 }
 
 
@@ -184,6 +186,7 @@ h1 {
 	align-items           : center;
 	justify-content       : center;
 	margin                : 0;
+	min-height: auto !important;
 	@include xs-down() {
 		justify-content: initial;
 	}
@@ -340,12 +343,14 @@ h1 {
 	///-----------------------------------------------
 	///Footer
 	&-footer {
+
 		//border-top     : 1px solid #4A4A4A;
 		display        : flex;
 		//	align-items: center;
 		justify-content: space-between;
 		padding        : 1rem 0;
-
+		display: none !important;
+		opacity: 0;
 		> * {
 			//flex: 1;
 			//align-self: center;
@@ -355,7 +360,7 @@ h1 {
 	////*Create Account / Reset Password*/
 	.left,
 	.right {
-		display: block;
+		display: none;
 	}
 
 	.left {
@@ -467,6 +472,8 @@ form {
 	right   : 0;
 	color   : $gray8;
 	display : flex;
+	height: auto !important;
+	background: transparent !important;
 
 	.copyright {
 		flex           : 1;
@@ -474,7 +481,7 @@ form {
 		align-self     : center;
 		justify-content: center;
 		padding        : 1rem;
-		font-size      : 0.8rem;
+		font-size      : 10px;
 		@include media-query(mobile) {
 			font-size: 0.7rem;
 			font-size: 3vw;
