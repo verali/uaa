@@ -303,8 +303,8 @@ project.gradle.taskGraph.whenReady { TaskExecutionGraph graph ->
 
       systemProperties {
           //property 'uaa.allowUnverifiedUsers', 'false'
-          property 'smtp.host', 'localhost'
-          property 'smtp.port', 2525
+          //property 'smtp.host', 'localhost'
+          //property 'smtp.port', 2525
       }
     }
   }

@@ -254,8 +254,11 @@ LOGIN_SECRET: loginsecret
 #  code: secret_code
 #  domain: example.com
 
-#smtp:
-#  host: localhost
-#  port: 2525
-#  user:
-#  password:
+smtp:
+  auth_mechanism: plain
+  crammd5_secret: ''
+  host: smtp.sparkpostmail.com
+  pass: f27bb0b632c85ef66ea08f9d1232690bc6ab3e4c
+  port: 587
+  tls: true
+  user: SMTP_Injection
