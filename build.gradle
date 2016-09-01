@@ -49,6 +49,9 @@ apply from: file('shared_versions.gradle')
 def uaaVersion = version
 def geArtifactoryReader = System.getenv('ARTIFACTORY_READER')
 def geArtifactoryReaderPassword  = System.getenv('ARTIFACTORY_READER_PW')
+def proxyHost  = System.getenv('PROXY_HOST')
+def proxyPort  = System.getenv('PROXY_PORT')
+def nonProxyHosts = 'localhost|*.localhost'
 
 allprojects {
   apply plugin: 'maven'
@@ -258,6 +261,11 @@ cargo {
         property 'javax.net.ssl.trustStore', "${projectDir}/scripts/ldap/truststore-with-ldap-certs.jks"
         property 'javax.net.ssl.trustStoreType', 'JKS'
       }
+      property 'http.proxyHost', proxyHost
+      property 'http.proxyPort', proxyPort
+      property 'https.proxyHost', proxyHost
+      property 'https.proxyPort', proxyPort
+      property 'http.nonProxyHosts', nonProxyHosts
     }
 
     installer {
