@@ -77,6 +77,13 @@ allprojects {
      url 'https://devcloud.swcoe.ge.com/artifactory/predix-virtual'
    }
   }
+
+  test {
+    systemProperty "http.proxyPort", proxyPort
+    systemProperty "https.proxyHost", proxyHost
+    systemProperty "https.proxyPort", proxyPort
+    systemProperty "http.nonProxyHosts", nonProxyHosts
+  }
 }
 
 //apply plugin: 'com.bmuschko.cargo-base'
