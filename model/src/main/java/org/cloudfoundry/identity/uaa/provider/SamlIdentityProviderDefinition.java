@@ -242,11 +242,8 @@ public class SamlIdentityProviderDefinition extends ExternalIdentityProviderDefi
     }
 
     // For backward compatibility.
-    public boolean isAddNew() {
-        return isAddShadowUserOnLogin();
-    }
-
-    // For backward compatibility.
+    // This setter is needed for deserializing the json, and 
+    // will go away with this branch when the migration is complete.
     public void setAddNew(boolean addNew) {
         super.setAddShadowUserOnLogin(addNew);
     }
