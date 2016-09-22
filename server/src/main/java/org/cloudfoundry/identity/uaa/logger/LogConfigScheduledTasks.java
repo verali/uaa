@@ -20,7 +20,11 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
+import org.cloudfoundry.identity.uaa.constants.OriginKeys;
 import org.cloudfoundry.identity.uaa.provider.JdbcIdentityProviderProvisioning;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,10 +39,13 @@ import org.springframework.web.client.RestTemplate;
 
 
 @Component
-public class LogConfigScheduledTasks {
+@Configuration
+public class LogConfigScheduledTasks implements InitializingBean{
 	
 
 	private static final Log LOGGER = LogFactory.getLog(LogConfigScheduledTasks.class);
+
+    private static final String URI_SEPARATOR= "/";
 
     private static final String LOG4J_CATEGORY = "log4j.category.";
     private RestTemplate restTemplate = new RestTemplate();
@@ -46,13 +53,33 @@ public class LogConfigScheduledTasks {
     private OAuth2RestTemplate oauth2RestTemplate;
     
     //Only configured for local, must use client with config.read authority, assuming local uaa is also config server's trusted issuer
-    private String clientId = "client";
-    private String clientSecret = "clientsecret";
-    private String configServerUri = "http://localhost:8888/uaa/default";
-    private String getTokenUri = "http://localhost:8080/uaa/oauth/token";
 
-    public void init() {
-        System.out.println("LOGS BABY!");
+    //    private String clientId = "security-config-server-test-client";
+    @Value("${CONFIG_CLIENT_ID:default-client}")
+    private String clientId;
+    @Value("${CONFIG_CLIENT_SECRET:default-secret}")
+    private String clientSecret;
+    //    private String clientSecret = "configsecret";
+    @Value("${CONFIG_SERVER_URI:default-uri}")
+    private String configServerBaseUri;
+    @Value("${DEPLOYMENT_TYPE:default-deploy-type}")
+    private String deploymentType;
+
+
+    private String configServerUri;
+
+    //    private String configServerUri = "security-config-server.grc-apps.svc.ice.ge.com/uaa/default";
+    @Value("${GET_TOKEN_URI:default-token-uri}")
+    private String getTokenUri;
+//    private String getTokenUri = "predix-uaa-staging.grc-apps.svc.ice.ge.com/oauth/token";
+
+        /*public void init() {
+            System.out.println("LOGS BABY!");
+        }*/
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        configServerUri = configServerBaseUri + URI_SEPARATOR + OriginKeys.UAA + URI_SEPARATOR + deploymentType;
     }
 
     @SuppressWarnings("unchecked")
