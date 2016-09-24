@@ -269,6 +269,7 @@ public class IdentityProvider<T extends AbstractIdentityProviderDefinition> {
         sb.append(", name='").append(name).append('\'');
         sb.append(", type='").append(type).append('\'');
         sb.append(", active=").append(active);
+        sb.append(", identity_zone_id=").append(identityZoneId);
         sb.append('}');
         return sb.toString();
     }
