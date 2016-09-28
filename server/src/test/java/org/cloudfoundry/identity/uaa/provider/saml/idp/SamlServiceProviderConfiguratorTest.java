@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.cloudfoundry.identity.uaa.provider.saml.ComparableProvider;
 import org.cloudfoundry.identity.uaa.zone.IdentityZone;
 import org.cloudfoundry.identity.uaa.zone.IdentityZoneHolder;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
@@ -130,5 +131,15 @@ public class SamlServiceProviderConfiguratorTest {
 
         }
         t.cancel();
+    }
+
+    @Test
+    public void testGetNonExistentServiceProviderMetadata() throws Exception {
+        Assert.assertNull(conf.getExtendedMetadataDelegateFromCache("non-existent-entity-id"));
+    }
+
+    @Test
+    public void testRemoveNonExistentServiceProviderMetadata() throws Exception {
+        Assert.assertNull(conf.removeSamlServiceProvider("non-existent-entity-id"));
     }
 }
