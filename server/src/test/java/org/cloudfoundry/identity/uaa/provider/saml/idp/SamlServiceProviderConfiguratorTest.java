@@ -2,6 +2,7 @@ package org.cloudfoundry.identity.uaa.provider.saml.idp;
 
 import static org.cloudfoundry.identity.uaa.provider.saml.idp.SamlTestUtils.mockSamlServiceProviderForZone;
 import static org.cloudfoundry.identity.uaa.provider.saml.idp.SamlTestUtils.mockSamlServiceProviderWithoutXmlHeaderInMetadata;
+import static org.cloudfoundry.identity.uaa.provider.saml.idp.SamlTestUtils.mockSamlServiceProviderForZoneWithoutSPSSOInMetadata;
 import static org.cloudfoundry.identity.uaa.provider.saml.idp.SamlTestUtils.mockSamlServiceProvider;
 import static org.cloudfoundry.identity.uaa.provider.saml.idp.SamlTestUtils.MOCK_SP_ENTITY_ID;
 import static org.junit.Assert.assertEquals;
@@ -21,8 +22,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.opensaml.saml2.metadata.provider.MetadataProviderException;
+
 import org.opensaml.xml.parse.BasicParserPool;
 import org.springframework.security.oauth2.common.util.RandomValueStringGenerator;
+import org.springframework.security.saml.metadata.ExtendedMetadataDelegate;
+
 
 public class SamlServiceProviderConfiguratorTest {
 
@@ -95,13 +99,13 @@ public class SamlServiceProviderConfiguratorTest {
             sp.setIdentityZoneId(zoneId);
             IdentityZoneHolder.set(new IdentityZone().setId(zoneId));
             conf.addSamlServiceProvider(sp);
-    
+
             String unwantedZoneId = UUID.randomUUID().toString();
             SamlServiceProvider unwantedSp = mockSamlServiceProviderForZone("uaa");
             unwantedSp.setIdentityZoneId(unwantedZoneId);
             IdentityZoneHolder.set(new IdentityZone().setId(unwantedZoneId));
             conf.addSamlServiceProvider(unwantedSp);
-    
+
             IdentityZone zone = new IdentityZone().setId(zoneId);
             Map<String, SamlServiceProviderHolder> spMap = conf.getSamlServiceProviderMapForZone(zone);
             assertEquals(1, spMap.entrySet().size());
@@ -144,6 +148,13 @@ public class SamlServiceProviderConfiguratorTest {
         SamlServiceProvider sp = mockSamlServiceProviderForZone("uaa");
         sp.setIdentityZoneId(null);
         conf.addSamlServiceProvider(sp);
+    }
+
+    @Test
+    public void testNullSSODescriptor() throws Exception {
+        ExtendedMetadataDelegate[] delegates =
+            conf.addSamlServiceProvider(mockSamlServiceProviderForZoneWithoutSPSSOInMetadata("uaa"));
+        assertEquals(delegates.length, 2);
     }
 
     @Test
