@@ -52,6 +52,16 @@ public class JdbcFailedLoginCountingAuditService extends JdbcAuditService {
                                                 - saveDataPeriodMillis));
                 super.log(auditEvent);
                 break;
+            case ClientAuthenticationSuccess:
+            case SecretChangeSuccess:
+                getJdbcTemplate().update("delete from sec_audit where principal_id=?", auditEvent.getPrincipalId());
+                break;
+            case ClientAuthenticationFailure:
+                getJdbcTemplate().update("delete from sec_audit where created < ?",
+                                new Timestamp(System.currentTimeMillis()
+                                                - saveDataPeriodMillis));
+                super.log(auditEvent);
+                break;
             default:
                 break;
         }
